@@ -35,3 +35,4 @@ supabase-additions.sql
 # Docs
 jornada-biblica-build-guide.md
 images/
+.vercel
