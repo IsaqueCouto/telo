@@ -1,0 +1,54 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getDayNumber, MILESTONES, PACE_DAYS } from "@/lib/reading-plan";
+import { HojeClient } from "./HojeClient";
+import type { Devotional } from "@/lib/types";
+
+export default async function HojePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) redirect("/login");
+
+  const dayNumber = getDayNumber(profile.start_date);
+  const isPro = profile.plan_type === "pro";
+
+  const columns = isPro
+    ? "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection, historical_context, discussion_questions, youtube_search_terms"
+    : "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference";
+
+  const [{ data: devotional }, { data: progress }, { data: streak }, { data: note }] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from("devotionals").select(columns).eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>,
+    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).eq("day_number", dayNumber).single(),
+    supabase.from("streaks").select("current_streak, longest_streak, last_read_date").eq("user_id", user.id).single(),
+    isPro
+      ? supabase.from("notes").select("id, content, created_at, updated_at").eq("user_id", user.id).eq("day_number", dayNumber).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  const milestone = MILESTONES.find((m) => m.day === dayNumber) ?? null;
+  const totalDays = PACE_DAYS[profile.pace as keyof typeof PACE_DAYS];
+
+  return (
+    <HojeClient
+      userId={user.id}
+      profile={profile}
+      dayNumber={dayNumber}
+      totalDays={totalDays}
+      devotional={devotional}
+      completedToday={!!progress?.completed_at}
+      streak={streak}
+      milestone={milestone}
+      isPro={isPro}
+      existingNote={note ? { ...note, day_number: dayNumber } : null}
+    />
+  );
+}

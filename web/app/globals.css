@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Telo color system */
+  --color-telo-black:    #010101;
+  --color-telo-surface:  #141414;
+  --color-telo-card:     #1C1C1C;
+  --color-telo-border:   #2A2A2A;
+  --color-telo-muted:    #3A3A3A;
+  --color-telo-gray:     #6B6B6B;
+  --color-telo-subtle:   #9A9A9A;
+  --color-telo-white:    #FFFFFF;
+  --color-telo-orange:   #EB8530;
+  --color-telo-red:      #E04724;
+
+  --font-telo: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+  overscroll-behavior-y: none;
+  background-color: #010101;
+  color: #FFFFFF;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Safe area padding for iPhone notch / home indicator */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Telo signature gradient */
+.telo-gradient {
+  background: linear-gradient(135deg, #EB8530 0%, #E04724 100%);
+}
+
+.telo-gradient-text {
+  background: linear-gradient(135deg, #EB8530 0%, #E04724 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle card glow on orange */
+.telo-card-glow {
+  box-shadow: 0 0 0 1px rgba(235, 133, 48, 0.15), 0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* Scrollbar hide */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+web/node_modules/
+mobile/node_modules/
+
+# Next.js
+web/.next/
+web/out/
+
+# Environment variables (NEVER commit these)
+.env
+.env.local
+.env*.local
+web/.env
+web/.env.local
+web/.env*.local
+
+# Build outputs
+web/tsconfig.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# Scripts (not needed in production)
+scripts/
+
+# Supabase SQL files (not needed in production)
+supabase-migration.sql
+supabase-additions.sql
+
+# Docs
+jornada-biblica-build-guide.md
+images/
