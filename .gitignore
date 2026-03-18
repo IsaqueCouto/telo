@@ -3,6 +3,10 @@ node_modules/
 web/node_modules/
 mobile/node_modules/
 
+# Root package files (app lives in web/)
+/package.json
+/package-lock.json
+
 # Next.js
 web/.next/
 web/out/
