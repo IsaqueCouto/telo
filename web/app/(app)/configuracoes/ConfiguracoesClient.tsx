@@ -5,7 +5,17 @@ import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
 import { PACE_LABELS } from "@/lib/reading-plan";
 
-const S = { bg: "#010101", card: "#1C1C1C", border: "#2A2A2A", surface: "#141414", gray: "#6B6B6B", subtle: "#9A9A9A", white: "#FFFFFF", orange: "#EB8530", red: "#E04724", gradient: "linear-gradient(135deg, #EB8530 0%, #E04724 100%)", font: "'Helvetica Neue', Helvetica, Arial, sans-serif" };
+const S = {
+  bg:      "#F7F3EE",
+  card:    "#FFFFFF",
+  border:  "#E2DBD0",
+  gray:    "#8C8279",
+  muted:   "#C8BEB2",
+  ink:     "#0D0D0B",
+  copper:  "#D8683B",
+  serif:   "'Vesper Libre', Georgia, serif",
+  sans:    "'Noto Sans', system-ui, sans-serif",
+};
 
 export function ConfiguracoesClient({ profile, email }: { profile: Profile; email: string }) {
   const router = useRouter();
@@ -18,53 +28,56 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
   }
 
   const rows = [
-    { label: "Nome", value: profile.full_name ?? "—" },
-    { label: "E-mail", value: email },
+    { label: "Nome",            value: profile.full_name ?? "—" },
+    { label: "E-mail",          value: email },
     { label: "Plano de leitura", value: PACE_LABELS[profile.pace as keyof typeof PACE_LABELS] ?? profile.pace },
   ];
 
   return (
-    <div style={{ padding: "0 20px 24px", background: S.bg, minHeight: "100vh", fontFamily: S.font }}>
-      <div style={{ paddingTop: 56, paddingBottom: 28 }}>
-        <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 6 }}>Telos</p>
-        <h1 style={{ fontSize: 32, fontWeight: 900, color: S.white, letterSpacing: "-0.8px" }}>Perfil</h1>
+    <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
+      <div style={{ padding: "52px 24px 8px" }}>
+        <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Telos</p>
+        <h1 style={{ fontFamily: S.serif, fontSize: 34, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Perfil</h1>
       </div>
 
-      {/* Plan badge */}
-      <div style={{ background: S.card, borderRadius: 20, padding: "20px", marginBottom: 12, border: `1px solid ${S.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div>
-          <p style={{ fontSize: 11, color: S.gray, textTransform: "uppercase" as const, letterSpacing: "0.06em", fontWeight: 600, marginBottom: 4 }}>Plano atual</p>
-          <p style={{ fontSize: 18, fontWeight: 900, color: S.white }}>
-            {profile.plan_type === "pro" ? "Telos Pro ✓" : "Gratuito"}
-          </p>
-        </div>
-        {profile.plan_type !== "pro" && (
-          <button
-            onClick={() => router.push("/pro")}
-            style={{ background: S.gradient, color: S.white, border: "none", borderRadius: 12, padding: "10px 18px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: S.font }}
-          >
-            Upgrade →
-          </button>
-        )}
-      </div>
+      <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
 
-      {/* Info rows */}
-      <div style={{ background: S.card, borderRadius: 20, border: `1px solid ${S.border}`, overflow: "hidden", marginBottom: 12 }}>
-        {rows.map((row, i) => (
-          <div key={row.label} style={{ padding: "16px 20px", borderBottom: i < rows.length - 1 ? `1px solid ${S.border}` : "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <p style={{ fontSize: 13, color: S.gray }}>{row.label}</p>
-            <p style={{ fontSize: 13, fontWeight: 600, color: S.white, maxWidth: "60%", textAlign: "right" as const, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{row.value}</p>
+        {/* Plan badge */}
+        <div style={{ background: profile.plan_type === "pro" ? S.copper : S.card, borderRadius: 20, padding: "22px", border: `1px solid ${profile.plan_type === "pro" ? S.copper : S.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+          <div>
+            <p style={{ fontSize: 11, color: profile.plan_type === "pro" ? "rgba(255,255,255,0.7)" : S.gray, textTransform: "uppercase" as const, letterSpacing: "0.07em", fontWeight: 600, marginBottom: 6, fontFamily: S.sans }}>Plano atual</p>
+            <p style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: profile.plan_type === "pro" ? "#FFFFFF" : S.ink }}>
+              {profile.plan_type === "pro" ? "Telos Pro ✓" : "Gratuito"}
+            </p>
           </div>
-        ))}
-      </div>
+          {profile.plan_type !== "pro" && (
+            <button
+              onClick={() => router.push("/pro")}
+              style={{ background: S.copper, color: "#FFFFFF", border: "none", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}
+            >
+              Upgrade →
+            </button>
+          )}
+        </div>
 
-      {/* Sign out */}
-      <button
-        onClick={handleSignOut}
-        style={{ width: "100%", background: "transparent", border: `1px solid #3A1A1A`, color: S.red, borderRadius: 16, padding: "16px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: S.font }}
-      >
-        Sair da conta
-      </button>
+        {/* Info rows */}
+        <div style={{ background: S.card, borderRadius: 20, border: `1px solid ${S.border}`, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+          {rows.map((row, i) => (
+            <div key={row.label} style={{ padding: "16px 20px", borderBottom: i < rows.length - 1 ? `1px solid ${S.border}` : "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <p style={{ fontSize: 14, color: S.gray, fontFamily: S.sans }}>{row.label}</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: S.ink, maxWidth: "60%", textAlign: "right" as const, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontFamily: S.sans }}>{row.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Sign out */}
+        <button
+          onClick={handleSignOut}
+          style={{ width: "100%", background: "transparent", border: `1.5px solid ${S.border}`, color: "#C0392B", borderRadius: 14, padding: "15px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: S.sans }}
+        >
+          Sair da conta
+        </button>
+      </div>
     </div>
   );
 }

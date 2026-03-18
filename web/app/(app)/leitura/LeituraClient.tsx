@@ -5,7 +5,18 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { BibleChapter, Translation } from "@/lib/bible";
 
-const S = { bg: "#010101", card: "#1C1C1C", surface: "#141414", border: "#2A2A2A", muted: "#3A3A3A", gray: "#6B6B6B", subtle: "#9A9A9A", white: "#FFFFFF", orange: "#EB8530", gradient: "linear-gradient(135deg, #EB8530 0%, #E04724 100%)", font: "'Helvetica Neue', Helvetica, Arial, sans-serif" };
+const S = {
+  bg:      "#F7F3EE",
+  surface: "#EDE8DF",
+  card:    "#FFFFFF",
+  border:  "#E2DBD0",
+  gray:    "#8C8279",
+  muted:   "#C8BEB2",
+  ink:     "#0D0D0B",
+  copper:  "#D8683B",
+  serif:   "'Vesper Libre', Georgia, serif",
+  sans:    "'Noto Sans', system-ui, sans-serif",
+};
 
 type Props = {
   userId: string;
@@ -18,9 +29,9 @@ type Props = {
 export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initialChapters, initialTranslation }: Props) {
   const router = useRouter();
   const [translation, setTranslation] = useState<Translation>(initialTranslation);
-  const [chapters, setChapters] = useState<BibleChapter[]>(initialChapters);
-  const [loading, setLoading] = useState(false);
-  const [, startTransition] = useTransition();
+  const [chapters, setChapters]       = useState<BibleChapter[]>(initialChapters);
+  const [loading, setLoading]         = useState(false);
+  const [, startTransition]           = useTransition();
 
   async function switchTranslation(t: Translation) {
     if (t === translation || loading) return;
@@ -34,27 +45,34 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
   }
 
   return (
-    <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.font }}>
-      {/* Header */}
-      <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(1,1,1,0.95)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: `1px solid ${S.border}`, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <button onClick={() => router.back()} style={{ fontSize: 13, fontWeight: 600, color: S.subtle, background: "none", border: "none", cursor: "pointer", fontFamily: S.font }}>
+    <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
+      {/* Sticky header */}
+      <div style={{
+        position: "sticky", top: 0, zIndex: 10,
+        background: "rgba(247,243,238,0.97)",
+        backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+        borderBottom: `1px solid ${S.border}`,
+        padding: "12px 20px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <button onClick={() => router.back()} style={{ fontSize: 14, fontWeight: 600, color: S.gray, background: "none", border: "none", cursor: "pointer", fontFamily: S.sans, padding: 0 }}>
           ← Voltar
         </button>
-        <p style={{ fontSize: 13, fontWeight: 700, color: S.white, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+        <p style={{ fontFamily: S.serif, fontSize: 14, fontWeight: 700, color: S.ink, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
           {chaptersText}
         </p>
         {/* Translation toggle */}
-        <div style={{ display: "flex", background: S.card, borderRadius: 10, border: `1px solid ${S.border}`, overflow: "hidden" }}>
+        <div style={{ display: "flex", background: S.surface, borderRadius: 10, border: `1px solid ${S.border}`, overflow: "hidden" }}>
           {(["nvi", "acf"] as Translation[]).map((t) => (
             <button
               key={t}
               onClick={() => switchTranslation(t)}
               disabled={loading}
               style={{
-                padding: "6px 12px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.font,
-                background: translation === t ? S.gradient : "transparent",
-                color: translation === t ? S.white : S.gray,
-                letterSpacing: "0.04em",
+                padding: "7px 13px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans,
+                background: translation === t ? S.copper : "transparent",
+                color: translation === t ? "#FFFFFF" : S.gray,
+                letterSpacing: "0.04em", transition: "background 0.15s",
               }}
             >
               {t.toUpperCase()}
@@ -64,28 +82,29 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
       </div>
 
       {/* Bible text */}
-      <div style={{ padding: "24px 20px 80px", display: "flex", flexDirection: "column", gap: 40 }}>
+      <div style={{ padding: "28px 24px 100px", display: "flex", flexDirection: "column", gap: 48 }}>
         {loading ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingTop: 80 }}>
             <p style={{ fontSize: 14, color: S.gray }}>Carregando...</p>
           </div>
         ) : chapters.length === 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 80, gap: 8 }}>
-            <p style={{ fontSize: 28 }}>📖</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 80, gap: 10 }}>
+            <p style={{ fontSize: 32 }}>📖</p>
             <p style={{ fontSize: 14, color: S.gray, textAlign: "center" as const }}>Texto bíblico não encontrado.</p>
           </div>
         ) : (
           chapters.map((ch) => (
             <div key={`${ch.bookName}-${ch.chapter}`}>
-              <h2 style={{ fontSize: 11, fontWeight: 700, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.1em", marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${S.border}` }}>
+              <h2 style={{ fontFamily: S.serif, fontSize: 22, fontWeight: 900, color: S.ink, letterSpacing: "-0.3px", marginBottom: 6, lineHeight: 1.2 }}>
                 {ch.bookName} {ch.chapter}
               </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ width: 32, height: 2, background: S.copper, borderRadius: 99, marginBottom: 24 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {ch.verses.map((verse) => (
-                  <p key={verse.number} style={{ fontSize: 16, lineHeight: 1.75, color: "#E8E8E8" }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: S.orange, marginRight: 6, verticalAlign: "super" }}>
+                  <p key={verse.number} style={{ fontFamily: S.serif, fontSize: 17, lineHeight: 1.9, color: "#3A3530" }}>
+                    <sup style={{ fontSize: 10, fontWeight: 700, color: S.copper, marginRight: 4, verticalAlign: "super", fontFamily: S.sans }}>
                       {verse.number}
-                    </span>
+                    </sup>
                     {verse.text}
                   </p>
                 ))}
@@ -95,9 +114,9 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
         )}
       </div>
 
-      {/* Bottom label */}
-      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: "rgba(1,1,1,0.95)", borderTop: `1px solid ${S.border}`, padding: "12px 20px", textAlign: "center" as const, backdropFilter: "blur(20px)" }}>
-        <p style={{ fontSize: 11, color: S.gray }}>Dia {dayNumber} · {chaptersText} · {translation.toUpperCase()}</p>
+      {/* Bottom bar */}
+      <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: "rgba(247,243,238,0.97)", borderTop: `1px solid ${S.border}`, padding: "12px 20px", textAlign: "center" as const, backdropFilter: "blur(20px)" }}>
+        <p style={{ fontSize: 11, color: S.muted, fontFamily: S.sans }}>Dia {dayNumber} · {chaptersText} · {translation.toUpperCase()}</p>
       </div>
     </div>
   );
