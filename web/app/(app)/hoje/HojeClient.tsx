@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile, Devotional, Streak, Note } from "@/lib/types";
 
@@ -19,6 +20,20 @@ const S = {
   red:      "#E04724",
   gradient: "linear-gradient(135deg, #EB8530 0%, #E04724 100%)",
   font:     "'Helvetica Neue', Helvetica, Arial, sans-serif",
+};
+
+const mdComponents = {
+  h2: ({ children }: any) => <h2 style={{ fontSize: 16, fontWeight: 800, color: "#FFFFFF", marginTop: 20, marginBottom: 8, fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", letterSpacing: "-0.3px" }}>{children}</h2>,
+  h3: ({ children }: any) => <h3 style={{ fontSize: 14, fontWeight: 700, color: "#EB8530", marginTop: 16, marginBottom: 6, fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>{children}</h3>,
+  p: ({ children }: any) => <p style={{ fontSize: 14, color: "#CCCCCC", lineHeight: 1.75, marginBottom: 10 }}>{children}</p>,
+  ul: ({ children }: any) => <ul style={{ paddingLeft: 0, marginBottom: 10, listStyle: "none" }}>{children}</ul>,
+  li: ({ children }: any) => (
+    <li style={{ fontSize: 14, color: "#CCCCCC", lineHeight: 1.7, marginBottom: 6, paddingLeft: 16, position: "relative" }}>
+      <span style={{ position: "absolute", left: 0, color: "#EB8530", fontWeight: 700 }}>·</span>
+      {children}
+    </li>
+  ),
+  strong: ({ children }: any) => <strong style={{ color: "#FFFFFF", fontWeight: 700 }}>{children}</strong>,
 };
 
 type Props = {
@@ -156,14 +171,18 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
           {devotional.reflection && (
             <div style={{ background: S.card, borderRadius: 20, padding: "20px", border: `1px solid ${S.border}` }}>
               <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, marginBottom: 4 }}>O que você leu</p>
-              <p style={{ fontSize: 11, color: S.gray, marginBottom: 12 }}>Resumo e explicação dos capítulos</p>
-              <p style={{ fontSize: 14, color: "#CCCCCC", lineHeight: 1.7 }}>{devotional.reflection}</p>
+              <p style={{ fontSize: 11, color: S.gray, marginBottom: 16 }}>Resumo e explicação dos capítulos</p>
+              <div className="prose-telo">
+                <ReactMarkdown components={mdComponents}>{devotional.reflection}</ReactMarkdown>
+              </div>
             </div>
           )}
           {devotional.historical_context && (
             <div style={{ background: S.card, borderRadius: 20, padding: "20px", border: `1px solid ${S.border}` }}>
-              <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, marginBottom: 12 }}>Contexto histórico</p>
-              <p style={{ fontSize: 14, color: "#CCCCCC", lineHeight: 1.7 }}>{devotional.historical_context}</p>
+              <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, marginBottom: 16 }}>Contexto histórico</p>
+              <div className="prose-telo">
+                <ReactMarkdown components={mdComponents}>{devotional.historical_context}</ReactMarkdown>
+              </div>
             </div>
           )}
           {devotional.youtube_search_terms && devotional.youtube_search_terms.length > 0 && (
