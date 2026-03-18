@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,9 +20,12 @@ export default function RegisterPage() {
     if (password.length < 6) { setError("A senha deve ter pelo menos 6 caracteres."); return; }
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
-    if (error) { setError(error.message); setLoading(false); }
-    else { router.push("/hoje"); router.refresh(); }
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name, phone } } });
+    if (error) { setError(error.message); setLoading(false); return; }
+    if (data.user && phone) {
+      await supabase.from("profiles").update({ phone }).eq("id", data.user.id);
+    }
+    router.push("/hoje"); router.refresh();
   }
 
   const inputStyle = { background: "#1C1C1C", border: "1px solid #2A2A2A", color: "#FFFFFF", borderRadius: 16, padding: "16px", fontSize: 14, outline: "none", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", width: "100%", boxSizing: "border-box" as const };
@@ -46,6 +50,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <input type="text" placeholder="Seu nome" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" style={inputStyle} />
           <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" style={inputStyle} />
+          <input type="tel" placeholder="Telefone (opcional)" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" style={inputStyle} />
           <input type="password" placeholder="Senha (mínimo 6 caracteres)" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" style={inputStyle} />
           {error && <p style={{ color: "#E04724", fontSize: 13, textAlign: "center" }}>{error}</p>}
           <button
