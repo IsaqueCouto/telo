@@ -35,8 +35,7 @@ export default function RegisterPage() {
       {/* Logo */}
       <div>
         <div className="flex items-baseline gap-1">
-          <span style={{ fontSize: 28, fontWeight: 900, color: "#FFFFFF", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", letterSpacing: "-0.5px" }}>Telo</span>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "linear-gradient(135deg, #EB8530, #E04724)", display: "inline-block", marginBottom: 2 }} />
+          <img src="/logo.png" alt="Telos" style={{ height: 36, objectFit: "contain" }} />
         </div>
         <p style={{ color: "#6B6B6B", fontSize: 13, marginTop: 4 }}>Leia a Bíblia inteira. No seu ritmo.</p>
       </div>

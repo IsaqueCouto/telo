@@ -2,13 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Telo",
+  title: "Telos",
   description: "Leia a Bíblia inteira. No seu ritmo.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Telo",
+    title: "Telos",
   },
   formatDetection: { telephone: false },
 };

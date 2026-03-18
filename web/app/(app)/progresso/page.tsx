@@ -26,7 +26,7 @@ export default async function ProgressoPage() {
   return (
     <div style={{ padding: "0 20px 24px", background: S.bg, minHeight: "100vh", fontFamily: S.font }}>
       <div style={{ paddingTop: 56, paddingBottom: 28 }}>
-        <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 6 }}>Telo</p>
+        <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 6 }}>Telos</p>
         <h1 style={{ fontSize: 32, fontWeight: 900, color: S.white, letterSpacing: "-0.8px" }}>Seu progresso</h1>
       </div>
 

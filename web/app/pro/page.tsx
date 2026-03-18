@@ -26,7 +26,7 @@ export default function ProPage() {
         </button>
 
         <div style={{ marginBottom: 32 }}>
-          <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 8 }}>Telo Pro</p>
+          <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 8 }}>Telos Pro</p>
           <h1 style={{ fontSize: 40, fontWeight: 900, color: S.white, letterSpacing: "-1px", lineHeight: 1.05, marginBottom: 12 }}>
             Vá mais fundo<br />na Palavra.
           </h1>

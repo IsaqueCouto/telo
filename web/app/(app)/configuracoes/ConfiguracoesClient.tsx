@@ -26,7 +26,7 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
   return (
     <div style={{ padding: "0 20px 24px", background: S.bg, minHeight: "100vh", fontFamily: S.font }}>
       <div style={{ paddingTop: 56, paddingBottom: 28 }}>
-        <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 6 }}>Telo</p>
+        <p style={{ fontSize: 11, color: S.orange, textTransform: "uppercase" as const, letterSpacing: "0.08em", fontWeight: 700, marginBottom: 6 }}>Telos</p>
         <h1 style={{ fontSize: 32, fontWeight: 900, color: S.white, letterSpacing: "-0.8px" }}>Perfil</h1>
       </div>
 
@@ -35,7 +35,7 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
         <div>
           <p style={{ fontSize: 11, color: S.gray, textTransform: "uppercase" as const, letterSpacing: "0.06em", fontWeight: 600, marginBottom: 4 }}>Plano atual</p>
           <p style={{ fontSize: 18, fontWeight: 900, color: S.white }}>
-            {profile.plan_type === "pro" ? "Telo Pro ✓" : "Gratuito"}
+            {profile.plan_type === "pro" ? "Telos Pro ✓" : "Gratuito"}
           </p>
         </div>
         {profile.plan_type !== "pro" && (
