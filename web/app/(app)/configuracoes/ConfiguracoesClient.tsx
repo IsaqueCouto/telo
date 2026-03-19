@@ -35,9 +35,15 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
 
   return (
     <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
-      <div style={{ padding: "52px 24px 8px" }}>
-        <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Telos</p>
-        <h1 style={{ fontFamily: S.serif, fontSize: 34, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Perfil</h1>
+      <div style={{
+        position: "sticky", top: 0, zIndex: 20,
+        background: "rgba(247,243,238,0.82)",
+        backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+        borderBottom: "1px solid rgba(226,219,208,0.45)",
+        padding: "calc(env(safe-area-inset-top) + 44px) 24px 18px",
+      }}>
+        <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6, fontFamily: S.sans }}>Telos</p>
+        <h1 style={{ fontFamily: S.serif, fontSize: 32, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Perfil</h1>
       </div>
 
       <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 12 }}>

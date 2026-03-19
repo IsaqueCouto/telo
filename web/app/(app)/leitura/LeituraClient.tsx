@@ -174,7 +174,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
     <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
 
       {/* Sticky header */}
-      <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(247,243,238,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: `1px solid ${S.border}`, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(247,243,238,0.82)", backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)", borderBottom: "1px solid rgba(226,219,208,0.45)", padding: "calc(env(safe-area-inset-top) + 10px) 20px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <button onClick={() => router.back()} style={{ fontSize: 14, fontWeight: 600, color: S.gray, background: "none", border: "none", cursor: "pointer", fontFamily: S.sans, padding: 0 }}>
           ← Voltar
         </button>
