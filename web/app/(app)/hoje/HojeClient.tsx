@@ -21,12 +21,84 @@ const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
 const MOODS = [
-  { id: "ansioso", label: "Ansioso", icon: "🌊", verse: "Filipenses 4:6-7", text: "Não andeis ansiosos por coisa alguma; antes em tudo fazei os vossos pedidos conhecidos a Deus por meio de oração e súplica.", reflection: "A ansiedade muitas vezes nos faz esquecer que não estamos sozinhos. Deus conhece cada preocupação que você carrega hoje — não precisa carregá-las sozinho. Entregue ao Senhor o que você não consegue resolver, e receba a paz que ultrapassa todo entendimento." },
-  { id: "triste",  label: "Triste",  icon: "🌧", verse: "Salmo 34:18", text: "Perto está o Senhor dos que têm o coração quebrantado e salva os de espírito abatido.", reflection: "Sentir tristeza não é fraqueza — é humano. Deus não se afasta de corações feridos; Ele se aproxima. Você não precisa fingir que está bem; Ele te encontra exatamente onde você está." },
-  { id: "grato",   label: "Grato",   icon: "☀️", verse: "Salmo 100:4", text: "Entrai nos seus átrios com ações de graças, nos seus átrios com hinos. Rendei-lhe graças e bendizei o seu nome.", reflection: "Gratidão é um ato de fé — é reconhecer que as bênçãos não são coincidência. Que hoje você carregue essa leveza no coração, sabendo que as boas dádivas vêm d'Ele." },
-  { id: "perdido", label: "Perdido", icon: "🧭", verse: "Jeremias 29:11", text: "Porque eu bem sei os planos que tenho para vós, diz o Senhor, planos de paz e não de mal, para vos dar um futuro e uma esperança.", reflection: "Quando não sabemos o caminho, é fácil achar que Deus também não sabe. Mas Ele não apenas conhece o caminho — Ele é o caminho. Confie nos planos dEle mesmo quando você não os entende ainda." },
-  { id: "cansado", label: "Cansado", icon: "🌙", verse: "Mateus 11:28", text: "Vinde a mim, todos os que estais cansados e sobrecarregados, e eu vos aliviarei.", reflection: "O cansaço que você sente hoje é real, e Deus o vê. Jesus não pede que você chegue com força — Ele convida exatamente os que estão esgotados. Descanse nEle hoje." },
+  { id: "ansioso", label: "Ansioso", verse: "Filipenses 4:6-7", text: "Não andeis ansiosos por coisa alguma; antes em tudo fazei os vossos pedidos conhecidos a Deus por meio de oração e súplica.", reflection: "A ansiedade muitas vezes nos faz esquecer que não estamos sozinhos. Deus conhece cada preocupação que você carrega hoje — não precisa carregá-las sozinho. Entregue ao Senhor o que você não consegue resolver, e receba a paz que ultrapassa todo entendimento." },
+  { id: "triste",  label: "Triste",  verse: "Salmo 34:18", text: "Perto está o Senhor dos que têm o coração quebrantado e salva os de espírito abatido.", reflection: "Sentir tristeza não é fraqueza — é humano. Deus não se afasta de corações feridos; Ele se aproxima. Você não precisa fingir que está bem; Ele te encontra exatamente onde você está." },
+  { id: "grato",   label: "Grato",   verse: "Salmo 100:4", text: "Entrai nos seus átrios com ações de graças, nos seus átrios com hinos. Rendei-lhe graças e bendizei o seu nome.", reflection: "Gratidão é um ato de fé — é reconhecer que as bênçãos não são coincidência. Que hoje você carregue essa leveza no coração, sabendo que as boas dádivas vêm d'Ele." },
+  { id: "perdido", label: "Perdido", verse: "Jeremias 29:11", text: "Porque eu bem sei os planos que tenho para vós, diz o Senhor, planos de paz e não de mal, para vos dar um futuro e uma esperança.", reflection: "Quando não sabemos o caminho, é fácil achar que Deus também não sabe. Mas Ele não apenas conhece o caminho — Ele é o caminho. Confie nos planos dEle mesmo quando você não os entende ainda." },
+  { id: "cansado", label: "Cansado", verse: "Mateus 11:28", text: "Vinde a mim, todos os que estais cansados e sobrecarregados, e eu vos aliviarei.", reflection: "O cansaço que você sente hoje é real, e Deus o vê. Jesus não pede que você chegue com força — Ele convida exatamente os que estão esgotados. Descanse nEle hoje." },
 ];
+
+// ── Mood SVG icons (neumorphic line-art style) ───────────────────────────────
+
+function AnsisoIcon({ active }: { active: boolean }) {
+  const c = active ? "#FFF8EE" : "#A0855C";
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <path d="M2 17 L5 17 L7 11 L9 23 L11 13 L13 21 L15 8 L17 26 L19 14 L21 20 L23 17 L27 17 L32 17"
+        stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+function TristeIcon({ active }: { active: boolean }) {
+  const c = active ? "#FFF8EE" : "#A0855C";
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <path d="M9 20 Q8 14 13 13 Q13 8 17 8 Q22 8 22 13 Q26 13 26 18 Q26 21 22 21 L11 21 Q8 21 9 20Z"
+        stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <line x1="12" y1="24" x2="11" y2="28" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="17" y1="24" x2="16" y2="28" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="22" y1="24" x2="21" y2="28" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function GratoIcon({ active }: { active: boolean }) {
+  const c = active ? "#FFF8EE" : "#A0855C";
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <line x1="3" y1="24" x2="31" y2="24" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <path d="M10 24 A7 7 0 0 1 24 24" stroke={c} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+      <line x1="17" y1="7" x2="17" y2="11" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="8"  y1="13" x2="11" y2="15" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="26" y1="13" x2="23" y2="15" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="5"  y1="21" x2="8"  y2="21" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="29" y1="21" x2="26" y2="21" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function PerdidoIcon({ active }: { active: boolean }) {
+  const c = active ? "#FFF8EE" : "#A0855C";
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="12" stroke={c} strokeWidth="1.6"/>
+      <circle cx="17" cy="17" r="1.8" fill={c}/>
+      <polygon points="17,6 14.5,15 17,13 19.5,15" fill={c}/>
+      <polygon points="17,28 14.5,19 17,21 19.5,19" stroke={c} strokeWidth="1.2" fill="none" strokeLinejoin="round"/>
+      <line x1="17" y1="6"  x2="17" y2="9"  stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="17" y1="25" x2="17" y2="28" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="6"  y1="17" x2="9"  y2="17" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+      <line x1="28" y1="17" x2="25" y2="17" stroke={c} strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  );
+}
+function CansadoIcon({ active }: { active: boolean }) {
+  const c = active ? "#FFF8EE" : "#A0855C";
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <polyline points="3,27 3,22 9,22 9,17 15,17 15,12 21,12 21,7 27,7"
+        stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <polyline points="24,4 27,7 24,10"
+        stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+const MOOD_ICONS: Record<string, (props: { active: boolean }) => JSX.Element> = {
+  ansioso: AnsisoIcon,
+  triste:  TristeIcon,
+  grato:   GratoIcon,
+  perdido: PerdidoIcon,
+  cansado: CansadoIcon,
+};
 
 // ── Horizon Calendar ────────────────────────────────────────────────────────
 
@@ -152,30 +224,48 @@ function MoodSelector() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ background: S.card, borderRadius: 20, padding: "20px 20px 16px", border: `1px solid ${S.border}` }}>
+      <div style={{ background: S.card, borderRadius: 20, padding: "20px 20px 20px", border: `1px solid ${S.border}` }}>
         <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Como você está hoje?</p>
-        <p style={{ fontSize: 13, color: S.gray, marginBottom: 16, fontFamily: S.sans }}>Selecione seu estado de espírito</p>
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }} className="no-scrollbar">
+        <p style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.ink, marginBottom: 20 }}>Selecione seu estado de espírito</p>
+
+        {/* 5 neumorphic tiles */}
+        <div style={{ display: "flex", gap: 8, justifyContent: "space-between" }}>
           {MOODS.map((m) => {
             const isActive = selected === m.id;
+            const Icon = MOOD_ICONS[m.id];
             return (
-              <button
-                key={m.id}
-                onClick={() => setSelected(isActive ? null : m.id)}
-                style={{
-                  flexShrink: 0,
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
-                  padding: "12px 14px",
-                  borderRadius: 16,
-                  background: isActive ? S.blue : S.surface,
-                  border: `1.5px solid ${isActive ? S.blue : S.border}`,
-                  cursor: "pointer",
-                  transition: "all 0.18s",
-                }}
-              >
-                <span style={{ fontSize: 20 }}>{m.icon}</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: isActive ? "#FFFFFF" : S.gray, fontFamily: S.sans }}>{m.label}</span>
-              </button>
+              <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
+                <button
+                  onClick={() => setSelected(isActive ? null : m.id)}
+                  style={{
+                    width: "100%",
+                    aspectRatio: "1",
+                    borderRadius: 16,
+                    background: isActive ? "#C49A3C" : "#F0EAE0",
+                    boxShadow: isActive
+                      ? "inset 2px 2px 6px rgba(0,0,0,0.18), inset -1px -1px 3px rgba(255,255,255,0.08)"
+                      : "4px 4px 10px rgba(0,0,0,0.09), -2px -2px 6px rgba(255,255,255,0.85), inset 0 1px 0 rgba(255,255,255,0.7)",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "all 0.18s ease",
+                  }}
+                >
+                  <Icon active={isActive} />
+                </button>
+                <span style={{
+                  fontSize: 10,
+                  fontWeight: isActive ? 700 : 500,
+                  color: isActive ? "#C49A3C" : S.gray,
+                  fontFamily: S.sans,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase" as const,
+                }}>
+                  {m.label}
+                </span>
+              </div>
             );
           })}
         </div>
