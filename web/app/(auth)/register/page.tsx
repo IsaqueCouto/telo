@@ -10,7 +10,7 @@ const S = {
   border: "#E2DBD0",
   gray:   "#8C8279",
   ink:    "#0D0D0B",
-  #3B82C4: "#3B82C4",
+  blue:    "#3B82C4",
   serif:  "'Vesper Libre', Georgia, serif",
   sans:   "'Noto Sans', system-ui, sans-serif",
 };
