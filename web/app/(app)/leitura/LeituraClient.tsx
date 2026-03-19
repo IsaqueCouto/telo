@@ -13,7 +13,7 @@ const S = {
   gray:    "#8C8279",
   muted:   "#C8BEB2",
   ink:     "#0D0D0B",
-  copper:  "#D8683B",
+  blue:    "#3B82C4",
   serif:   "'Vesper Libre', Georgia, serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
@@ -70,7 +70,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
               disabled={loading}
               style={{
                 padding: "7px 13px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans,
-                background: translation === t ? S.copper : "transparent",
+                background: translation === t ? S.blue : "transparent",
                 color: translation === t ? "#FFFFFF" : S.gray,
                 letterSpacing: "0.04em", transition: "background 0.15s",
               }}
@@ -98,11 +98,11 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
               <h2 style={{ fontFamily: S.serif, fontSize: 22, fontWeight: 900, color: S.ink, letterSpacing: "-0.3px", marginBottom: 6, lineHeight: 1.2 }}>
                 {ch.bookName} {ch.chapter}
               </h2>
-              <div style={{ width: 32, height: 2, background: S.copper, borderRadius: 99, marginBottom: 24 }} />
+              <div style={{ width: 32, height: 2, background: S.blue, borderRadius: 99, marginBottom: 24 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {ch.verses.map((verse) => (
                   <p key={verse.number} style={{ fontFamily: S.serif, fontSize: 17, lineHeight: 1.9, color: "#3A3530" }}>
-                    <sup style={{ fontSize: 10, fontWeight: 700, color: S.copper, marginRight: 4, verticalAlign: "super", fontFamily: S.sans }}>
+                    <sup style={{ fontSize: 10, fontWeight: 700, color: S.blue, marginRight: 4, verticalAlign: "super", fontFamily: S.sans }}>
                       {verse.number}
                     </sup>
                     {verse.text}

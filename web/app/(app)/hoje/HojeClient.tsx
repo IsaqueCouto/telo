@@ -16,19 +16,19 @@ const S = {
   gray:    "#8C8279",
   subtle:  "#B0A89F",
   ink:     "#0D0D0B",
-  copper:  "#D8683B",
+  blue:    "#3B82C4",
   serif:   "'Vesper Libre', Georgia, serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
 
 const mdComponents = {
   h2: ({ children }: any) => <h2 style={{ fontFamily: S.serif, fontSize: 18, fontWeight: 900, color: S.ink, marginTop: 24, marginBottom: 10, letterSpacing: "-0.3px", lineHeight: 1.3 }}>{children}</h2>,
-  h3: ({ children }: any) => <h3 style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.copper, marginTop: 18, marginBottom: 6, lineHeight: 1.4 }}>{children}</h3>,
+  h3: ({ children }: any) => <h3 style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.blue, marginTop: 18, marginBottom: 6, lineHeight: 1.4 }}>{children}</h3>,
   p: ({ children }: any) => <p style={{ fontFamily: S.sans, fontSize: 14, color: "#4A4540", lineHeight: 1.8, marginBottom: 12 }}>{children}</p>,
   ul: ({ children }: any) => <ul style={{ paddingLeft: 0, marginBottom: 12, listStyle: "none" }}>{children}</ul>,
   li: ({ children }: any) => (
     <li style={{ fontFamily: S.sans, fontSize: 14, color: "#4A4540", lineHeight: 1.7, marginBottom: 8, paddingLeft: 20, position: "relative" }}>
-      <span style={{ position: "absolute", left: 0, color: S.copper, fontWeight: 700 }}>·</span>
+      <span style={{ position: "absolute", left: 0, color: S.blue, fontWeight: 700 }}>·</span>
       {children}
     </li>
   ),
@@ -105,7 +105,7 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
         {/* Streak */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, background: S.card, border: `1px solid ${S.border}`, borderRadius: 100, padding: "8px 14px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <span style={{ fontSize: 15 }}>🔥</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: S.copper, fontFamily: S.sans }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: S.blue, fontFamily: S.sans }}>
             {currentStreak} {currentStreak === 1 ? "dia" : "dias"}
           </span>
         </div>
@@ -117,17 +117,17 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
         <div style={{ background: S.card, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <span style={{ fontSize: 12, color: S.gray, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 600 }}>Progresso</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: S.copper }}>{percent}% completo</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: S.blue }}>{percent}% completo</span>
           </div>
           <div style={{ height: 4, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${percent}%`, background: S.copper, borderRadius: 99, transition: "width 0.6s ease" }} />
+            <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99, transition: "width 0.6s ease" }} />
           </div>
           <p style={{ fontSize: 12, color: S.muted, marginTop: 8, fontFamily: S.sans }}>Dia {dayNumber} de {totalDays}</p>
         </div>
 
         {/* Milestone */}
         {milestone && (
-          <div style={{ background: S.copper, borderRadius: 16, padding: "18px 20px", textAlign: "center" }}>
+          <div style={{ background: S.blue, borderRadius: 16, padding: "18px 20px", textAlign: "center" }}>
             <div style={{ fontSize: 28, marginBottom: 4 }}>{milestone.emoji}</div>
             <p style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 15, fontFamily: S.serif }}>{milestone.message}</p>
           </div>
@@ -135,7 +135,7 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
 
         {/* Today's reading card */}
         <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-          <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10, fontFamily: S.sans }}>
+          <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10, fontFamily: S.sans }}>
             Leitura de hoje
           </p>
           {devotional ? (
@@ -144,12 +144,12 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
                 {devotional.chapters_text}
               </p>
               {devotional.key_verse && (
-                <div style={{ background: S.bg, borderRadius: 12, padding: "16px", borderLeft: `3px solid ${S.copper}`, marginBottom: 16 }}>
+                <div style={{ background: S.bg, borderRadius: 12, padding: "16px", borderLeft: `3px solid ${S.blue}`, marginBottom: 16 }}>
                   <p style={{ fontFamily: S.serif, fontSize: 14, color: "#4A4540", lineHeight: 1.7, fontStyle: "italic" }}>
                     &ldquo;{devotional.key_verse}&rdquo;
                   </p>
                   {devotional.key_verse_reference && (
-                    <p style={{ fontFamily: S.sans, fontSize: 12, color: S.copper, fontWeight: 700, marginTop: 8 }}>— {devotional.key_verse_reference}</p>
+                    <p style={{ fontFamily: S.sans, fontSize: 12, color: S.blue, fontWeight: 700, marginTop: 8 }}>— {devotional.key_verse_reference}</p>
                   )}
                 </div>
               )}
@@ -171,25 +171,25 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
           <>
             {devotional.reflection && (
               <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>O que você leu</p>
+                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>O que você leu</p>
                 <p style={{ fontSize: 12, color: S.muted, marginBottom: 16, fontFamily: S.sans }}>Resumo e explicação dos capítulos</p>
                 <ReactMarkdown components={mdComponents}>{devotional.reflection}</ReactMarkdown>
               </div>
             )}
             {devotional.historical_context && (
               <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 16, fontFamily: S.sans }}>Contexto histórico</p>
+                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 16, fontFamily: S.sans }}>Contexto histórico</p>
                 <ReactMarkdown components={mdComponents}>{devotional.historical_context}</ReactMarkdown>
               </div>
             )}
             {devotional.youtube_search_terms && devotional.youtube_search_terms.length > 0 && (
               <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Aprofunde-se</p>
+                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Aprofunde-se</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {devotional.youtube_search_terms.map((term, i) => (
                     <a key={i} href={`https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`} target="_blank" rel="noopener noreferrer"
                       style={{ display: "flex", alignItems: "center", gap: 12, background: S.bg, borderRadius: 10, padding: "13px 16px", textDecoration: "none", border: `1px solid ${S.border}` }}>
-                      <span style={{ fontSize: 14, color: S.copper, flexShrink: 0 }}>▶</span>
+                      <span style={{ fontSize: 14, color: S.blue, flexShrink: 0 }}>▶</span>
                       <span style={{ fontSize: 13, color: "#4A4540", fontFamily: S.sans, lineHeight: 1.4 }}>{term}</span>
                     </a>
                   ))}
@@ -198,11 +198,11 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
             )}
             {devotional.discussion_questions && devotional.discussion_questions.length > 0 && (
               <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 16, fontFamily: S.sans }}>Para refletir</p>
+                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 16, fontFamily: S.sans }}>Para refletir</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {devotional.discussion_questions.map((q, i) => (
                     <div key={i} style={{ display: "flex", gap: 12, paddingBottom: 14, borderBottom: i < devotional.discussion_questions!.length - 1 ? `1px solid ${S.border}` : "none" }}>
-                      <span style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 900, color: S.copper, flexShrink: 0, paddingTop: 1 }}>{i + 1}.</span>
+                      <span style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 900, color: S.blue, flexShrink: 0, paddingTop: 1 }}>{i + 1}.</span>
                       <p style={{ fontFamily: S.sans, fontSize: 14, color: "#4A4540", lineHeight: 1.6 }}>{q}</p>
                     </div>
                   ))}
@@ -212,7 +212,7 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
             {/* Notes */}
             <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, fontFamily: S.sans }}>Anotações</p>
+                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, fontFamily: S.sans }}>Anotações</p>
                 {noteSaved && <span style={{ fontSize: 12, color: "#2E7D32", fontWeight: 600, fontFamily: S.sans }}>Salvo ✓</span>}
               </div>
               <textarea
@@ -225,7 +225,7 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
               <button
                 onClick={saveNote}
                 disabled={noteSaving || !noteText.trim()}
-                style={{ marginTop: 10, width: "100%", background: noteText.trim() ? S.copper : S.border, color: noteText.trim() ? "#FFFFFF" : S.subtle, borderRadius: 12, padding: "13px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, transition: "background 0.2s" }}
+                style={{ marginTop: 10, width: "100%", background: noteText.trim() ? S.blue : S.border, color: noteText.trim() ? "#FFFFFF" : S.subtle, borderRadius: 12, padding: "13px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, transition: "background 0.2s" }}
               >
                 {noteSaving ? "Salvando..." : "Salvar anotação"}
               </button>
@@ -234,13 +234,13 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
         ) : devotional && !isPro ? (
           <div style={{ position: "relative" }}>
             <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, opacity: 0.25, pointerEvents: "none", userSelect: "none" }}>
-              <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10 }}>O que você leu</p>
+              <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10 }}>O que você leu</p>
               <p style={{ fontFamily: S.serif, fontSize: 15, color: S.ink, lineHeight: 1.7 }}>Explicação detalhada, contexto histórico, vídeos sugeridos e anotações pessoais...</p>
             </div>
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <button
                 onClick={() => router.push("/pro")}
-                style={{ background: S.copper, color: "#FFFFFF", borderRadius: 14, padding: "14px 28px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, boxShadow: "0 8px 24px rgba(216,104,59,0.35)" }}
+                style={{ background: S.blue, color: "#FFFFFF", borderRadius: 14, padding: "14px 28px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, boxShadow: "0 8px 24px rgba(216,104,59,0.35)" }}
               >
                 Desbloquear Pro
               </button>
@@ -259,7 +259,7 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
             <button
               onClick={markAsRead}
               disabled={isPending}
-              style={{ width: "100%", background: isPending ? S.border : S.copper, color: "#FFFFFF", borderRadius: 16, padding: "20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", boxShadow: isPending ? "none" : "0 6px 20px rgba(216,104,59,0.3)", transition: "background 0.2s" }}
+              style={{ width: "100%", background: isPending ? S.border : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", boxShadow: isPending ? "none" : "0 6px 20px rgba(216,104,59,0.3)", transition: "background 0.2s" }}
             >
               {isPending ? "Salvando..." : "Li hoje"}
             </button>

@@ -12,7 +12,7 @@ const S = {
   gray:    "#8C8279",
   muted:   "#C8BEB2",
   ink:     "#0D0D0B",
-  copper:  "#D8683B",
+  blue:    "#3B82C4",
   serif:   "'Vesper Libre', Georgia, serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
@@ -36,14 +36,14 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
   return (
     <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
       <div style={{ padding: "52px 24px 8px" }}>
-        <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Telos</p>
+        <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Telos</p>
         <h1 style={{ fontFamily: S.serif, fontSize: 34, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Perfil</h1>
       </div>
 
       <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
 
         {/* Plan badge */}
-        <div style={{ background: profile.plan_type === "pro" ? S.copper : S.card, borderRadius: 20, padding: "22px", border: `1px solid ${profile.plan_type === "pro" ? S.copper : S.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: profile.plan_type === "pro" ? S.blue : S.card, borderRadius: 20, padding: "22px", border: `1px solid ${profile.plan_type === "pro" ? S.blue : S.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
           <div>
             <p style={{ fontSize: 11, color: profile.plan_type === "pro" ? "rgba(255,255,255,0.7)" : S.gray, textTransform: "uppercase" as const, letterSpacing: "0.07em", fontWeight: 600, marginBottom: 6, fontFamily: S.sans }}>Plano atual</p>
             <p style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: profile.plan_type === "pro" ? "#FFFFFF" : S.ink }}>
@@ -53,7 +53,7 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
           {profile.plan_type !== "pro" && (
             <button
               onClick={() => router.push("/pro")}
-              style={{ background: S.copper, color: "#FFFFFF", border: "none", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}
+              style={{ background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}
             >
               Upgrade →
             </button>

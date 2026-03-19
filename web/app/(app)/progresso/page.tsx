@@ -10,7 +10,7 @@ const S = {
   gray:    "#8C8279",
   muted:   "#C8BEB2",
   ink:     "#0D0D0B",
-  copper:  "#D8683B",
+  blue:    "#3B82C4",
   serif:   "'Vesper Libre', Georgia, serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
@@ -37,7 +37,7 @@ export default async function ProgressoPage() {
   return (
     <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
       <div style={{ padding: "52px 24px 8px" }}>
-        <p style={{ fontSize: 11, color: S.copper, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Telos</p>
+        <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Telos</p>
         <h1 style={{ fontFamily: S.serif, fontSize: 34, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Seu progresso</h1>
       </div>
 
@@ -47,7 +47,7 @@ export default async function ProgressoPage() {
         <div style={{ background: S.card, borderRadius: 24, padding: "28px", border: `1px solid ${S.border}`, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
             <div>
-              <p style={{ fontFamily: S.serif, fontSize: 64, fontWeight: 900, color: S.copper, letterSpacing: "-3px", lineHeight: 1 }}>{percent}%</p>
+              <p style={{ fontFamily: S.serif, fontSize: 64, fontWeight: 900, color: S.blue, letterSpacing: "-3px", lineHeight: 1 }}>{percent}%</p>
               <p style={{ fontSize: 13, color: S.gray, marginTop: 6, fontFamily: S.sans }}>da Bíblia completa</p>
             </div>
             <div style={{ textAlign: "right" as const }}>
@@ -58,7 +58,7 @@ export default async function ProgressoPage() {
             </div>
           </div>
           <div style={{ height: 5, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${percent}%`, background: S.copper, borderRadius: 99 }} />
+            <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99 }} />
           </div>
           <p style={{ fontSize: 12, color: S.muted, marginTop: 10, fontFamily: S.sans }}>Plano de {paceLabel}</p>
         </div>
@@ -81,11 +81,11 @@ export default async function ProgressoPage() {
         {remaining > 0 ? (
           <div style={{ background: S.card, borderRadius: 20, padding: "24px", border: `1px solid ${S.border}`, textAlign: "center" as const, boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
             <p style={{ fontSize: 13, color: S.gray, marginBottom: 8, fontFamily: S.sans }}>Faltam apenas</p>
-            <p style={{ fontFamily: S.serif, fontSize: 52, fontWeight: 900, color: S.copper, letterSpacing: "-2px" }}>{remaining}</p>
+            <p style={{ fontFamily: S.serif, fontSize: 52, fontWeight: 900, color: S.blue, letterSpacing: "-2px" }}>{remaining}</p>
             <p style={{ fontSize: 13, color: S.gray, fontFamily: S.sans }}>dias para completar a Bíblia</p>
           </div>
         ) : (
-          <div style={{ background: S.copper, borderRadius: 20, padding: "28px", textAlign: "center" as const }}>
+          <div style={{ background: S.blue, borderRadius: 20, padding: "28px", textAlign: "center" as const }}>
             <p style={{ fontSize: 36, marginBottom: 10 }}>👑</p>
             <p style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: "#FFFFFF" }}>Você leu a Bíblia inteira!</p>
           </div>

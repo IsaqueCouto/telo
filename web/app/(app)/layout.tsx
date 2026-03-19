@@ -12,7 +12,7 @@ const NAV = [
 
 function HomeIcon({ active }: { active: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#D8683B" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#3B82C4" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
       <path d="M9 21V12h6v9"/>
     </svg>
@@ -20,7 +20,7 @@ function HomeIcon({ active }: { active: boolean }) {
 }
 function BookIcon({ active }: { active: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#D8683B" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#3B82C4" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
     </svg>
@@ -28,7 +28,7 @@ function BookIcon({ active }: { active: boolean }) {
 }
 function ChartIcon({ active }: { active: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#D8683B" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#3B82C4" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="20" x2="18" y2="10"/>
       <line x1="12" y1="20" x2="12" y2="4"/>
       <line x1="6"  y1="20" x2="6"  y2="14"/>
@@ -37,7 +37,7 @@ function ChartIcon({ active }: { active: boolean }) {
 }
 function UserIcon({ active }: { active: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#D8683B" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#3B82C4" : "#B0A89F"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
       <circle cx="12" cy="7" r="4"/>
     </svg>
@@ -81,7 +81,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <span style={{
                   fontSize: 10, fontWeight: active ? 700 : 500,
                   fontFamily: "'Noto Sans', system-ui, sans-serif",
-                  color: active ? "#D8683B" : "#B0A89F",
+                  color: active ? "#3B82C4" : "#B0A89F",
                   letterSpacing: "0.01em",
                 }}>
                   {item.label}

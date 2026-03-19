@@ -11,7 +11,7 @@ const S = {
   border:  "#E2DBD0",
   gray:    "#8C8279",
   ink:     "#0D0D0B",
-  copper:  "#D8683B",
+  blue:    "#3B82C4",
   serif:   "'Vesper Libre', Georgia, serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
@@ -64,7 +64,7 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-              marginTop: 4, background: loading ? S.border : S.copper, color: "#FFFFFF",
+              marginTop: 4, background: loading ? S.border : S.blue, color: "#FFFFFF",
               borderRadius: 12, padding: "16px", fontSize: 15, fontWeight: 700,
               border: "none", cursor: "pointer", fontFamily: S.sans,
               transition: "background 0.2s", letterSpacing: "0.01em",
@@ -80,12 +80,12 @@ export default function LoginPage() {
         {/* Divider with ornament */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <div style={{ flex: 1, height: 1, background: S.border }} />
-          <span style={{ color: S.copper, fontSize: 16 }}>✦</span>
+          <span style={{ color: S.blue, fontSize: 16 }}>✦</span>
           <div style={{ flex: 1, height: 1, background: S.border }} />
         </div>
         <p style={{ textAlign: "center", fontSize: 14, color: S.gray, fontFamily: S.sans }}>
           Não tem conta?{" "}
-          <Link href="/register" style={{ color: S.copper, fontWeight: 600, textDecoration: "none" }}>
+          <Link href="/register" style={{ color: S.blue, fontWeight: 600, textDecoration: "none" }}>
             Criar conta gratuita
           </Link>
         </p>
