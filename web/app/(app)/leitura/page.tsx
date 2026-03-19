@@ -27,7 +27,8 @@ export default async function LeituraPage() {
     ? "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection, historical_context, discussion_questions, youtube_search_terms"
     : "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference";
 
-  const { data: devotional } = await (supabase.from("devotionals").select(columns).eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: devotional } = (await supabase.from("devotionals").select(columns).eq("day_number", dayNumber).eq("pace", profile.pace).single()) as any as { data: Devotional | null };
 
   if (!devotional?.chapters_text) redirect("/hoje");
 
