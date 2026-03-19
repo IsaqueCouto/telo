@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { Profile, Devotional, Streak } from "@/lib/types";
-import { MILESTONES } from "@/lib/reading-plan";
 
 const S = {
   bg:      "#F7F3EE",
@@ -103,29 +102,20 @@ function HorizonCalendar({ dayNumber, totalDays, completedToday, streak }: {
   );
 }
 
-// ── Streak bar with milestone progress ──────────────────────────────────────
+// ── Streak bar with book progress ────────────────────────────────────────────
 
-function StreakBar({ streak }: { streak: Streak | null }) {
-  const current = streak?.current_streak ?? 0;
-  const nextMilestone = MILESTONES.find(m => m.day > current);
-  const prevDay = [...MILESTONES].reverse().find(m => m.day <= current)?.day ?? 0;
-
-  if (!nextMilestone) {
-    return (
-      <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}`, display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ fontSize: 20 }}>👑</span>
-        <div>
-          <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 900, color: S.ink }}>🔥 {current} dias</p>
-          <p style={{ fontSize: 11, color: S.gray, fontFamily: S.sans, marginTop: 2 }}>Você completou todos os marcos!</p>
-        </div>
-      </div>
-    );
-  }
-
-  const range = nextMilestone.day - prevDay;
-  const filled = current - prevDay;
-  const pct = Math.round((filled / range) * 100);
-  const daysLeft = nextMilestone.day - current;
+function StreakBar({ streak, currentBook, bookStart, bookEnd, dayNumber }: {
+  streak: Streak | null;
+  currentBook: string | null;
+  bookStart: number;
+  bookEnd: number;
+  dayNumber: number;
+}) {
+  const current   = streak?.current_streak ?? 0;
+  const bookTotal = Math.max(bookEnd - bookStart + 1, 1);
+  const bookDone  = Math.min(dayNumber - bookStart + 1, bookTotal);
+  const bookLeft  = Math.max(bookEnd - dayNumber, 0);
+  const pct       = Math.round((bookDone / bookTotal) * 100);
 
   return (
     <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}` }}>
@@ -135,17 +125,21 @@ function StreakBar({ streak }: { streak: Streak | null }) {
           <span style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: S.ink }}>{current}</span>
           <span style={{ fontSize: 12, color: S.gray, fontFamily: S.sans }}>{current === 1 ? "dia" : "dias"}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ fontSize: 11, color: S.gray, fontFamily: S.sans }}>+{daysLeft} dias →</span>
-          <span style={{ fontSize: 16 }}>{nextMilestone.emoji}</span>
-        </div>
+        {currentBook && (
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ fontSize: 11, color: S.gray, fontFamily: S.sans }}>{currentBook}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: S.blue, fontFamily: S.sans }}>{pct}%</span>
+          </div>
+        )}
       </div>
       <div style={{ height: 5, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${S.blue}, #5B9BD5)`, borderRadius: 99, transition: "width 0.8s ease" }} />
       </div>
-      <p style={{ fontSize: 10, color: S.muted, marginTop: 6, fontFamily: S.sans }}>
-        {nextMilestone.emoji} {nextMilestone.message} — em {daysLeft} {daysLeft === 1 ? "dia" : "dias"}
-      </p>
+      {currentBook && (
+        <p style={{ fontSize: 10, color: S.muted, marginTop: 6, fontFamily: S.sans }}>
+          📖 {currentBook} — {bookLeft === 0 ? "último dia!" : `${bookLeft} ${bookLeft === 1 ? "dia restante" : "dias restantes"}`}
+        </p>
+      )}
     </div>
   );
 }
@@ -273,11 +267,13 @@ type Props = {
   completedToday: boolean;
   streak: Streak | null;
   milestone: { emoji: string; message: string } | null;
+  currentBook: string | null;
+  bookStart: number;
+  bookEnd: number;
 };
 
-export function HojeClient({ profile, dayNumber, totalDays, devotional, completedToday, streak, milestone }: Props) {
+export function HojeClient({ profile, dayNumber, totalDays, devotional, completedToday, streak, milestone, currentBook, bookStart, bookEnd }: Props) {
   const firstName = profile.full_name?.split(" ")[0] ?? "Olá";
-  const percent   = Math.min(Math.round((dayNumber / totalDays) * 100), 100);
   const isPro     = profile.plan_type === "pro";
 
   async function shareVerse() {
@@ -312,22 +308,11 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
 
       <div style={{ padding: "20px 24px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
 
-        {/* 1. Streak bar with milestone progress */}
-        <StreakBar streak={streak} />
+        {/* 1. Streak bar with book progress */}
+        <StreakBar streak={streak} currentBook={currentBook} bookStart={bookStart} bookEnd={bookEnd} dayNumber={dayNumber} />
 
         {/* Calendar */}
         <HorizonCalendar dayNumber={dayNumber} totalDays={totalDays} completedToday={completedToday} streak={streak} />
-
-        {/* Overall progress bar */}
-        <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}` }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, color: S.gray, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.07em", fontFamily: S.sans }}>Progresso total</span>
-            <span style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 900, color: S.blue }}>{percent}%</span>
-          </div>
-          <div style={{ height: 5, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99, transition: "width 0.8s ease" }} />
-          </div>
-        </div>
 
         {/* Milestone banner */}
         {milestone && (
