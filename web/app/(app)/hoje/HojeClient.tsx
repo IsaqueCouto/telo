@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { Profile, Devotional, Streak } from "@/lib/types";
 
@@ -92,7 +92,7 @@ function CansadoIcon({ active }: { active: boolean }) {
   );
 }
 
-const MOOD_ICONS: Record<string, (props: { active: boolean }) => JSX.Element> = {
+const MOOD_ICONS: Record<string, (props: { active: boolean }) => React.ReactElement> = {
   ansioso: AnsisoIcon,
   triste:  TristeIcon,
   grato:   GratoIcon,

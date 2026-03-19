@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 const S = {
   bg:      "#F7F3EE",
@@ -43,7 +43,7 @@ function CansadoIcon({ active }: { active: boolean }) {
   const c = active ? "#FFF8EE" : "#A0855C";
   return <svg width="30" height="30" viewBox="0 0 34 34" fill="none"><polyline points="3,27 3,22 9,22 9,17 15,17 15,12 21,12 21,7 27,7" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/><polyline points="24,4 27,7 24,10" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
-const MOOD_ICONS: Record<string, (p: { active: boolean }) => JSX.Element> = {
+const MOOD_ICONS: Record<string, (p: { active: boolean }) => React.ReactElement> = {
   ansioso: AnsisoIcon, triste: TristeIcon, grato: GratoIcon, perdido: PerdidoIcon, cansado: CansadoIcon,
 };
 
