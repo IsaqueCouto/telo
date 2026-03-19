@@ -3,9 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/client";
-import type { Profile, Devotional, Streak, Note } from "@/lib/types";
+import type { Profile, Devotional, Streak } from "@/lib/types";
 
 const S = {
   bg:      "#F7F3EE",
@@ -14,26 +13,49 @@ const S = {
   border:  "#E2DBD0",
   muted:   "#C8BEB2",
   gray:    "#8C8279",
-  subtle:  "#B0A89F",
   ink:     "#0D0D0B",
   blue:    "#3B82C4",
   serif:   "'Vesper Libre', Georgia, serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
 
-const mdComponents = {
-  h2: ({ children }: any) => <h2 style={{ fontFamily: S.serif, fontSize: 18, fontWeight: 900, color: S.ink, marginTop: 24, marginBottom: 10, letterSpacing: "-0.3px", lineHeight: 1.3 }}>{children}</h2>,
-  h3: ({ children }: any) => <h3 style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.blue, marginTop: 18, marginBottom: 6, lineHeight: 1.4 }}>{children}</h3>,
-  p: ({ children }: any) => <p style={{ fontFamily: S.sans, fontSize: 14, color: "#4A4540", lineHeight: 1.8, marginBottom: 12 }}>{children}</p>,
-  ul: ({ children }: any) => <ul style={{ paddingLeft: 0, marginBottom: 12, listStyle: "none" }}>{children}</ul>,
-  li: ({ children }: any) => (
-    <li style={{ fontFamily: S.sans, fontSize: 14, color: "#4A4540", lineHeight: 1.7, marginBottom: 8, paddingLeft: 20, position: "relative" }}>
-      <span style={{ position: "absolute", left: 0, color: S.blue, fontWeight: 700 }}>·</span>
-      {children}
-    </li>
-  ),
-  strong: ({ children }: any) => <strong style={{ color: S.ink, fontWeight: 700 }}>{children}</strong>,
-};
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+function CalendarStrip({ dayNumber, totalDays }: { dayNumber: number; totalDays: number }) {
+  const today = new Date();
+  const dow = today.getDay();
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - dow + i);
+    return { label: WEEKDAYS[i], date: d.getDate(), isToday: i === dow };
+  });
+
+  return (
+    <div style={{ background: S.card, borderRadius: 20, padding: "18px 20px", border: `1px solid ${S.border}` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 900, color: S.ink }}>
+          {MONTHS[today.getMonth()]} {today.getFullYear()}
+        </p>
+        <p style={{ fontFamily: S.sans, fontSize: 12, color: S.gray }}>Dia {dayNumber} de {totalDays}</p>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        {days.map((d, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: 10, fontFamily: S.sans, color: d.isToday ? S.blue : S.muted, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.04em" }}>
+              {d.label}
+            </span>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: d.isToday ? S.blue : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 13, fontFamily: S.sans, fontWeight: d.isToday ? 700 : 400, color: d.isToday ? "#FFFFFF" : S.gray }}>
+                {d.date}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 type Props = {
   userId: string;
@@ -44,19 +66,13 @@ type Props = {
   completedToday: boolean;
   streak: Streak | null;
   milestone: { emoji: string; message: string } | null;
-  isPro: boolean;
-  existingNote: Note | null;
 };
 
-export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, completedToday: initialCompleted, streak, milestone, isPro, existingNote }: Props) {
+export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, completedToday: initialCompleted, streak, milestone }: Props) {
   const router = useRouter();
-  const [completed, setCompleted]       = useState(initialCompleted);
+  const [completed, setCompleted]         = useState(initialCompleted);
   const [currentStreak, setCurrentStreak] = useState(streak?.current_streak ?? 0);
-  const [isPending, startTransition]    = useTransition();
-  const [noteText, setNoteText]         = useState(existingNote?.content ?? "");
-  const [noteId, setNoteId]             = useState(existingNote?.id ?? null);
-  const [noteSaving, setNoteSaving]     = useState(false);
-  const [noteSaved, setNoteSaved]       = useState(false);
+  const [isPending, startTransition]      = useTransition();
 
   async function markAsRead() {
     const supabase = createClient();
@@ -76,20 +92,6 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
     startTransition(() => router.refresh());
   }
 
-  async function saveNote() {
-    if (!noteText.trim()) return;
-    setNoteSaving(true);
-    const supabase = createClient();
-    if (noteId) {
-      await supabase.from("notes").update({ content: noteText, updated_at: new Date().toISOString() }).eq("id", noteId);
-    } else {
-      const { data } = await supabase.from("notes").insert({ user_id: userId, day_number: dayNumber, content: noteText }).select("id").single();
-      if (data) setNoteId(data.id);
-    }
-    setNoteSaving(false); setNoteSaved(true);
-    setTimeout(() => setNoteSaved(false), 2000);
-  }
-
   const firstName = profile.full_name?.split(" ")[0] ?? "Olá";
   const percent   = Math.min(Math.round((dayNumber / totalDays) * 100), 100);
 
@@ -99,66 +101,50 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
       {/* Header */}
       <div style={{ padding: "52px 24px 20px", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <div>
-          <p style={{ fontSize: 13, color: S.gray, marginBottom: 3, fontFamily: S.sans }}>Bom dia,</p>
+          <p style={{ fontSize: 13, color: S.gray, marginBottom: 3 }}>Bom dia,</p>
           <p style={{ fontFamily: S.serif, fontSize: 28, fontWeight: 900, color: S.ink, letterSpacing: "-0.5px", lineHeight: 1 }}>{firstName}</p>
         </div>
-        {/* Streak */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, background: S.card, border: `1px solid ${S.border}`, borderRadius: 100, padding: "8px 14px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, background: S.card, border: `1px solid ${S.border}`, borderRadius: 100, padding: "8px 14px" }}>
           <span style={{ fontSize: 15 }}>🔥</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: S.blue, fontFamily: S.sans }}>
-            {currentStreak} {currentStreak === 1 ? "dia" : "dias"}
-          </span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: S.blue }}>{currentStreak} {currentStreak === 1 ? "dia" : "dias"}</span>
         </div>
       </div>
 
-      <div style={{ padding: "0 24px 28px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ padding: "0 24px 120px", display: "flex", flexDirection: "column", gap: 12 }}>
 
-        {/* Progress strip */}
-        <div style={{ background: S.card, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <span style={{ fontSize: 12, color: S.gray, textTransform: "uppercase", letterSpacing: "0.07em", fontWeight: 600 }}>Progresso</span>
+        {/* Calendar */}
+        <CalendarStrip dayNumber={dayNumber} totalDays={totalDays} />
+
+        {/* Progress */}
+        <div style={{ background: S.card, borderRadius: 16, padding: "16px 20px", border: `1px solid ${S.border}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: S.gray, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.07em" }}>Progresso</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: S.blue }}>{percent}% completo</span>
           </div>
-          <div style={{ height: 4, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ height: 6, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99, transition: "width 0.6s ease" }} />
           </div>
-          <p style={{ fontSize: 12, color: S.muted, marginTop: 8, fontFamily: S.sans }}>Dia {dayNumber} de {totalDays}</p>
         </div>
 
         {/* Milestone */}
         {milestone && (
-          <div style={{ background: S.blue, borderRadius: 16, padding: "18px 20px", textAlign: "center" }}>
+          <div style={{ background: S.blue, borderRadius: 16, padding: "18px 20px", textAlign: "center" as const }}>
             <div style={{ fontSize: 28, marginBottom: 4 }}>{milestone.emoji}</div>
             <p style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 15, fontFamily: S.serif }}>{milestone.message}</p>
           </div>
         )}
 
-        {/* Today's reading card */}
-        <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-          <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10, fontFamily: S.sans }}>
-            Leitura de hoje
-          </p>
+        {/* Today's reading */}
+        <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
+          <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10 }}>Leitura de hoje</p>
           {devotional ? (
             <>
-              <p style={{ fontFamily: S.serif, fontSize: 24, fontWeight: 900, color: S.ink, letterSpacing: "-0.5px", marginBottom: 18, lineHeight: 1.2 }}>
+              <p style={{ fontFamily: S.serif, fontSize: 22, fontWeight: 900, color: S.ink, letterSpacing: "-0.5px", marginBottom: 16, lineHeight: 1.2 }}>
                 {devotional.chapters_text}
               </p>
-              {devotional.key_verse && (
-                <div style={{ background: S.bg, borderRadius: 12, padding: "16px", borderLeft: `3px solid ${S.blue}`, marginBottom: 16 }}>
-                  <p style={{ fontFamily: S.serif, fontSize: 14, color: "#4A4540", lineHeight: 1.7, fontStyle: "italic" }}>
-                    &ldquo;{devotional.key_verse}&rdquo;
-                  </p>
-                  {devotional.key_verse_reference && (
-                    <p style={{ fontFamily: S.sans, fontSize: 12, color: S.blue, fontWeight: 700, marginTop: 8 }}>— {devotional.key_verse_reference}</p>
-                  )}
-                </div>
-              )}
-              <Link
-                href="/leitura"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: S.bg, border: `1px solid ${S.border}`, borderRadius: 12, padding: "13px", textDecoration: "none" }}
-              >
+              <Link href="/leitura" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: S.blue, borderRadius: 12, padding: "14px", textDecoration: "none" }}>
                 <span style={{ fontSize: 14 }}>📖</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: S.gray, fontFamily: S.sans }}>Ler os capítulos de hoje</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF" }}>Ler agora</span>
               </Link>
             </>
           ) : (
@@ -166,105 +152,46 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
           )}
         </div>
 
-        {/* Pro content */}
-        {devotional && isPro ? (
-          <>
-            {devotional.reflection && (
-              <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>O que você leu</p>
-                <p style={{ fontSize: 12, color: S.muted, marginBottom: 16, fontFamily: S.sans }}>Resumo e explicação dos capítulos</p>
-                <ReactMarkdown components={mdComponents}>{devotional.reflection}</ReactMarkdown>
-              </div>
-            )}
-            {devotional.historical_context && (
-              <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 16, fontFamily: S.sans }}>Contexto histórico</p>
-                <ReactMarkdown components={mdComponents}>{devotional.historical_context}</ReactMarkdown>
-              </div>
-            )}
-            {devotional.youtube_search_terms && devotional.youtube_search_terms.length > 0 && (
-              <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Aprofunde-se</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {devotional.youtube_search_terms.map((term, i) => (
-                    <a key={i} href={`https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`} target="_blank" rel="noopener noreferrer"
-                      style={{ display: "flex", alignItems: "center", gap: 12, background: S.bg, borderRadius: 10, padding: "13px 16px", textDecoration: "none", border: `1px solid ${S.border}` }}>
-                      <span style={{ fontSize: 14, color: S.blue, flexShrink: 0 }}>▶</span>
-                      <span style={{ fontSize: 13, color: "#4A4540", fontFamily: S.sans, lineHeight: 1.4 }}>{term}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-            {devotional.discussion_questions && devotional.discussion_questions.length > 0 && (
-              <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 16, fontFamily: S.sans }}>Para refletir</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  {devotional.discussion_questions.map((q, i) => (
-                    <div key={i} style={{ display: "flex", gap: 12, paddingBottom: 14, borderBottom: i < devotional.discussion_questions!.length - 1 ? `1px solid ${S.border}` : "none" }}>
-                      <span style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 900, color: S.blue, flexShrink: 0, paddingTop: 1 }}>{i + 1}.</span>
-                      <p style={{ fontFamily: S.sans, fontSize: 14, color: "#4A4540", lineHeight: 1.6 }}>{q}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Notes */}
-            <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, fontFamily: S.sans }}>Anotações</p>
-                {noteSaved && <span style={{ fontSize: 12, color: "#2E7D32", fontWeight: 600, fontFamily: S.sans }}>Salvo ✓</span>}
-              </div>
-              <textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder="Escreva suas reflexões ou insights sobre a leitura de hoje..."
-                rows={4}
-                style={{ width: "100%", background: S.bg, border: `1.5px solid ${S.border}`, borderRadius: 12, padding: "14px", fontSize: 14, color: S.ink, outline: "none", resize: "none", fontFamily: S.sans, lineHeight: 1.6 }}
-              />
-              <button
-                onClick={saveNote}
-                disabled={noteSaving || !noteText.trim()}
-                style={{ marginTop: 10, width: "100%", background: noteText.trim() ? S.blue : S.border, color: noteText.trim() ? "#FFFFFF" : S.subtle, borderRadius: 12, padding: "13px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, transition: "background 0.2s" }}
-              >
-                {noteSaving ? "Salvando..." : "Salvar anotação"}
-              </button>
+        {/* Key verse */}
+        {devotional?.key_verse && (
+          <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
+            <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 14 }}>Versículo do dia</p>
+            <div style={{ borderLeft: `3px solid ${S.blue}`, paddingLeft: 16, marginBottom: 12 }}>
+              <p style={{ fontFamily: S.serif, fontSize: 16, color: "#4A4540", lineHeight: 1.8, fontStyle: "italic" }}>
+                &ldquo;{devotional.key_verse}&rdquo;
+              </p>
             </div>
-          </>
-        ) : devotional && !isPro ? (
-          <div style={{ position: "relative" }}>
-            <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, opacity: 0.25, pointerEvents: "none", userSelect: "none" }}>
-              <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 10 }}>O que você leu</p>
-              <p style={{ fontFamily: S.serif, fontSize: 15, color: S.ink, lineHeight: 1.7 }}>Explicação detalhada, contexto histórico, vídeos sugeridos e anotações pessoais...</p>
+            {devotional.key_verse_reference && (
+              <p style={{ fontSize: 12, color: S.blue, fontWeight: 700, textAlign: "right" as const }}>— {devotional.key_verse_reference}</p>
+            )}
+          </div>
+        )}
+
+        {/* Music placeholder */}
+        <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
+          <p style={{ fontSize: 11, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 14 }}>Música para hoje</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, background: S.surface, borderRadius: 12, padding: "14px 16px" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: S.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span style={{ fontSize: 16 }}>🎵</span>
             </div>
-            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <button
-                onClick={() => router.push("/pro")}
-                style={{ background: S.blue, color: "#FFFFFF", borderRadius: 14, padding: "14px 28px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, boxShadow: "0 8px 24px rgba(216,104,59,0.35)" }}
-              >
-                Desbloquear Pro
-              </button>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: S.ink }}>Em breve</p>
+              <p style={{ fontSize: 11, color: S.gray, marginTop: 2 }}>Recomendações musicais a caminho</p>
             </div>
           </div>
-        ) : null}
+        </div>
 
         {/* Mark as read */}
-        <div style={{ marginTop: 4 }}>
-          {completed ? (
-            <div style={{ background: S.card, border: `1.5px solid #C8E6C9`, borderRadius: 16, padding: "20px", textAlign: "center" }}>
-              <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: "#2E7D32" }}>Lido hoje ✓</p>
-              <p style={{ fontSize: 13, color: S.gray, marginTop: 4, fontFamily: S.sans }}>Continue amanhã!</p>
-            </div>
-          ) : (
-            <button
-              onClick={markAsRead}
-              disabled={isPending}
-              style={{ width: "100%", background: isPending ? S.border : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", boxShadow: isPending ? "none" : "0 6px 20px rgba(216,104,59,0.3)", transition: "background 0.2s" }}
-            >
-              {isPending ? "Salvando..." : "Li hoje"}
-            </button>
-          )}
-        </div>
+        {completed ? (
+          <div style={{ background: S.card, border: `1.5px solid #C8E6C9`, borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
+            <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: "#2E7D32" }}>Lido hoje ✓</p>
+            <p style={{ fontSize: 13, color: S.gray, marginTop: 4 }}>Continue amanhã!</p>
+          </div>
+        ) : (
+          <button onClick={markAsRead} disabled={isPending} style={{ width: "100%", background: isPending ? S.border : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", transition: "background 0.2s" }}>
+            {isPending ? "Salvando..." : "Li hoje"}
+          </button>
+        )}
       </div>
     </div>
   );

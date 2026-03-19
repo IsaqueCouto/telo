@@ -18,20 +18,12 @@ export default async function HojePage() {
   if (!profile) redirect("/login");
 
   const dayNumber = getDayNumber(profile.start_date);
-  const isPro = profile.plan_type === "pro";
 
-  const columns = isPro
-    ? "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection, historical_context, discussion_questions, youtube_search_terms"
-    : "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference";
-
-  const [{ data: devotional }, { data: progress }, { data: streak }, { data: note }] = await Promise.all([
+  const [{ data: devotional }, { data: progress }, { data: streak }] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase.from("devotionals").select(columns).eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>,
+    (supabase.from("devotionals").select("day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference").eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>,
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).eq("day_number", dayNumber).single(),
     supabase.from("streaks").select("current_streak, longest_streak, last_read_date").eq("user_id", user.id).single(),
-    isPro
-      ? supabase.from("notes").select("id, content, created_at, updated_at").eq("user_id", user.id).eq("day_number", dayNumber).maybeSingle()
-      : Promise.resolve({ data: null }),
   ]);
 
   const milestone = MILESTONES.find((m) => m.day === dayNumber) ?? null;
@@ -47,8 +39,6 @@ export default async function HojePage() {
       completedToday={!!progress?.completed_at}
       streak={streak}
       milestone={milestone}
-      isPro={isPro}
-      existingNote={note ? { ...note, day_number: dayNumber } : null}
     />
   );
 }

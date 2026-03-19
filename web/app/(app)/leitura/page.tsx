@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getDayNumber } from "@/lib/reading-plan";
 import { fetchDailyChapters } from "@/lib/bible";
 import type { Translation } from "@/lib/bible";
+import type { Devotional, Note } from "@/lib/types";
 import { LeituraClient } from "./LeituraClient";
 
 export default async function LeituraPage() {
@@ -12,7 +13,7 @@ export default async function LeituraPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("pace, start_date, bible_translation")
+    .select("pace, start_date, bible_translation, plan_type")
     .eq("id", user.id)
     .single();
 
@@ -20,27 +21,33 @@ export default async function LeituraPage() {
 
   const dayNumber = getDayNumber(profile.start_date);
   const translation: Translation = (profile.bible_translation as Translation) ?? "nvi";
+  const isPro = profile.plan_type === "pro";
 
-  const { data: devotional } = await supabase
-    .from("devotionals")
-    .select("chapters_text")
-    .eq("day_number", dayNumber)
-    .eq("pace", profile.pace)
-    .single();
+  const columns = isPro
+    ? "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection, historical_context, discussion_questions, youtube_search_terms"
+    : "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference";
 
-  if (!devotional?.chapters_text) {
-    redirect("/hoje");
-  }
+  const { data: devotional } = await (supabase.from("devotionals").select(columns).eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>;
 
-  const chapters = await fetchDailyChapters(translation, devotional.chapters_text, supabase);
+  if (!devotional?.chapters_text) redirect("/hoje");
+
+  const [chapters, { data: notes }] = await Promise.all([
+    fetchDailyChapters(translation, devotional!.chapters_text, supabase),
+    isPro
+      ? supabase.from("notes").select("id, content, verse_reference, day_number, created_at, updated_at").eq("user_id", user.id).eq("day_number", dayNumber)
+      : Promise.resolve({ data: [] as Note[] }),
+  ]);
 
   return (
     <LeituraClient
       userId={user.id}
       dayNumber={dayNumber}
-      chaptersText={devotional.chapters_text}
+      chaptersText={devotional!.chapters_text}
       chapters={chapters}
       initialTranslation={translation}
+      devotional={devotional}
+      isPro={isPro}
+      existingNotes={(notes ?? []) as Note[]}
     />
   );
 }

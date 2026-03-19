@@ -34,6 +34,7 @@ export type Note = {
   id: string;
   day_number: number;
   content: string;
+  verse_reference: string | null;
   created_at: string;
   updated_at: string;
 };
