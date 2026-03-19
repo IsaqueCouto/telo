@@ -31,7 +31,6 @@ export default async function HojePage() {
 
   return (
     <HojeClient
-      userId={user.id}
       profile={profile}
       dayNumber={dayNumber}
       totalDays={totalDays}

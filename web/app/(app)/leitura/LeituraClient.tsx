@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/client";
 import type { BibleChapter, Translation } from "@/lib/bible";
-import type { Devotional, Note } from "@/lib/types";
+import type { Devotional, Note, Streak } from "@/lib/types";
 
 const S = {
   bg:      "#F7F3EE",
@@ -68,14 +68,17 @@ type Props = {
   devotional: Devotional | null;
   isPro: boolean;
   existingNotes: Note[];
+  completedToday: boolean;
+  streak: Streak | null;
 };
 
-export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initialChapters, initialTranslation, devotional, isPro, existingNotes }: Props) {
+export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initialChapters, initialTranslation, devotional, isPro, existingNotes, completedToday: initialCompleted, streak }: Props) {
   const router = useRouter();
   const [translation, setTranslation]     = useState<Translation>(initialTranslation);
   const [chapters, setChapters]           = useState<BibleChapter[]>(initialChapters);
   const [loading, setLoading]             = useState(false);
-  const [, startTransition]               = useTransition();
+  const [completed, setCompleted]         = useState(initialCompleted);
+  const [isPending, startTransition]      = useTransition();
   const [selectedVerse, setSelectedVerse] = useState<SelectedVerse | null>(null);
   const [verseNote, setVerseNote]         = useState("");
   const [savingNote, setSavingNote]       = useState(false);
@@ -136,6 +139,24 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
     setSavingGeneral(false);
     setSavedGeneral(true);
     setTimeout(() => setSavedGeneral(false), 2000);
+  }
+
+  async function markAsRead() {
+    const supabase = createClient();
+    const today = new Date().toISOString().split("T")[0];
+    await supabase.from("reading_progress").upsert({ user_id: userId, day_number: dayNumber, completed_at: new Date().toISOString() });
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+    let newStreak = 1;
+    if (streak) {
+      if (streak.last_read_date === today) newStreak = streak.current_streak;
+      else if (streak.last_read_date === yesterdayStr) newStreak = streak.current_streak + 1;
+      await supabase.from("streaks").update({ current_streak: newStreak, longest_streak: Math.max(newStreak, streak.longest_streak), last_read_date: today, updated_at: new Date().toISOString() }).eq("user_id", userId);
+    } else {
+      await supabase.from("streaks").insert({ user_id: userId, current_streak: 1, longest_streak: 1, last_read_date: today });
+    }
+    setCompleted(true);
+    startTransition(() => router.refresh());
   }
 
   async function switchTranslation(t: Translation) {
@@ -217,6 +238,20 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                 </div>
               </div>
             ))}
+
+            {/* Li hoje button */}
+            <div>
+              {completed ? (
+                <div style={{ background: S.card, border: `1.5px solid #C8E6C9`, borderRadius: 16, padding: "18px 20px", textAlign: "center" as const }}>
+                  <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: "#2E7D32" }}>Lido hoje ✓</p>
+                  <p style={{ fontSize: 13, color: S.gray, marginTop: 4 }}>Continue amanhã!</p>
+                </div>
+              ) : (
+                <button onClick={markAsRead} disabled={isPending} style={{ width: "100%", background: isPending ? S.muted : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "18px 20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", transition: "background 0.2s" }}>
+                  {isPending ? "Salvando..." : "Li hoje"}
+                </button>
+              )}
+            </div>
 
             {/* Pro sections */}
             {devotional && isPro && (

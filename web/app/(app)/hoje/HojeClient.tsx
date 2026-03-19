@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import type { Profile, Devotional, Streak } from "@/lib/types";
 
 const S = {
@@ -58,7 +56,6 @@ function CalendarStrip({ dayNumber, totalDays }: { dayNumber: number; totalDays:
 }
 
 type Props = {
-  userId: string;
   profile: Profile;
   dayNumber: number;
   totalDays: number;
@@ -68,29 +65,8 @@ type Props = {
   milestone: { emoji: string; message: string } | null;
 };
 
-export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, completedToday: initialCompleted, streak, milestone }: Props) {
-  const router = useRouter();
-  const [completed, setCompleted]         = useState(initialCompleted);
-  const [currentStreak, setCurrentStreak] = useState(streak?.current_streak ?? 0);
-  const [isPending, startTransition]      = useTransition();
-
-  async function markAsRead() {
-    const supabase = createClient();
-    const today = new Date().toISOString().split("T")[0];
-    await supabase.from("reading_progress").upsert({ user_id: userId, day_number: dayNumber, completed_at: new Date().toISOString() });
-    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split("T")[0];
-    let newStreak = 1;
-    if (streak) {
-      if (streak.last_read_date === today) newStreak = streak.current_streak;
-      else if (streak.last_read_date === yesterdayStr) newStreak = streak.current_streak + 1;
-      await supabase.from("streaks").update({ current_streak: newStreak, longest_streak: Math.max(newStreak, streak.longest_streak), last_read_date: today, updated_at: new Date().toISOString() }).eq("user_id", userId);
-    } else {
-      await supabase.from("streaks").insert({ user_id: userId, current_streak: 1, longest_streak: 1, last_read_date: today });
-    }
-    setCompleted(true); setCurrentStreak(newStreak);
-    startTransition(() => router.refresh());
-  }
+export function HojeClient({ profile, dayNumber, totalDays, devotional, completedToday, streak, milestone }: Props) {
+  const [currentStreak] = useState(streak?.current_streak ?? 0);
 
   const firstName = profile.full_name?.split(" ")[0] ?? "Olá";
   const percent   = Math.min(Math.round((dayNumber / totalDays) * 100), 100);
@@ -181,16 +157,12 @@ export function HojeClient({ userId, profile, dayNumber, totalDays, devotional, 
           </div>
         </div>
 
-        {/* Mark as read */}
-        {completed ? (
+        {/* Read status */}
+        {completedToday && (
           <div style={{ background: S.card, border: `1.5px solid #C8E6C9`, borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
             <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: "#2E7D32" }}>Lido hoje ✓</p>
             <p style={{ fontSize: 13, color: S.gray, marginTop: 4 }}>Continue amanhã!</p>
           </div>
-        ) : (
-          <button onClick={markAsRead} disabled={isPending} style={{ width: "100%", background: isPending ? S.border : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", transition: "background 0.2s" }}>
-            {isPending ? "Salvando..." : "Li hoje"}
-          </button>
         )}
       </div>
     </div>

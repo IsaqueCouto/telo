@@ -32,11 +32,13 @@ export default async function LeituraPage() {
 
   if (!devotional?.chapters_text) redirect("/hoje");
 
-  const [chapters, { data: notes }] = await Promise.all([
+  const [chapters, { data: notes }, { data: progress }, { data: streak }] = await Promise.all([
     fetchDailyChapters(translation, devotional!.chapters_text, supabase),
     isPro
       ? supabase.from("notes").select("id, content, verse_reference, day_number, created_at, updated_at").eq("user_id", user.id).eq("day_number", dayNumber)
       : Promise.resolve({ data: [] as Note[] }),
+    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).eq("day_number", dayNumber).single(),
+    supabase.from("streaks").select("current_streak, longest_streak, last_read_date").eq("user_id", user.id).single(),
   ]);
 
   return (
@@ -49,6 +51,8 @@ export default async function LeituraPage() {
       devotional={devotional}
       isPro={isPro}
       existingNotes={(notes ?? []) as Note[]}
+      completedToday={!!progress?.completed_at}
+      streak={streak}
     />
   );
 }
