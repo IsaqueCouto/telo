@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/client";
-import { BookOpenIcon, TempleIcon, PlayCircleIcon, MessageIcon, PencilIcon, LockIcon, SpeakerIcon, CheckCircleIcon } from "@/components/icons";
+import { BookOpenIcon, TempleIcon, PlayCircleIcon, MessageIcon, PencilIcon, LockIcon, SpeakerIcon, CheckCircleIcon, PlayIcon, PauseIcon, SkipBackIcon, SkipForwardIcon, XIcon } from "@/components/icons";
 import type { BibleChapter, Translation } from "@/lib/bible";
 import type { Devotional, Note, Streak } from "@/lib/types";
 
@@ -94,6 +94,62 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
     return s;
   });
 
+  // --- Audio state ---
+  const [isPlaying, setIsPlaying]           = useState(false);
+  const [currentVerseIdx, setCurrentVerseIdx] = useState(0);
+  const [speed, setSpeed]                   = useState(1);
+  const speedRef    = useRef(1);
+  const verseListRef = useRef<{ label: string; text: string }[]>([]);
+
+  // Flat verse list rebuilt whenever chapters change
+  const verseList = chapters.flatMap(ch =>
+    ch.verses.map(v => ({ label: `${ch.bookName} ${ch.chapter}:${v.number}`, text: v.text }))
+  );
+  verseListRef.current = verseList;
+
+  // Flat index map for verse highlighting
+  const verseIndexMap = new Map<string, number>();
+  let _fi = 0;
+  for (const ch of chapters) for (const v of ch.verses) verseIndexMap.set(`${ch.bookName}-${ch.chapter}-${v.number}`, _fi++);
+
+  function speak(startIdx: number) {
+    window.speechSynthesis.cancel();
+    setCurrentVerseIdx(startIdx);
+    setIsPlaying(true);
+    function speakVerse(idx: number) {
+      if (idx >= verseListRef.current.length) { setIsPlaying(false); return; }
+      const utt = new SpeechSynthesisUtterance(verseListRef.current[idx].text);
+      utt.lang = "pt-BR";
+      utt.rate = speedRef.current;
+      utt.onend  = () => { setCurrentVerseIdx(idx + 1); speakVerse(idx + 1); };
+      utt.onerror = () => setIsPlaying(false);
+      window.speechSynthesis.speak(utt);
+    }
+    speakVerse(startIdx);
+  }
+
+  function togglePlay() {
+    if (isPlaying) { window.speechSynthesis.cancel(); setIsPlaying(false); }
+    else { speak(currentVerseIdx); }
+  }
+
+  function stopAudio() {
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+    setCurrentVerseIdx(0);
+  }
+
+  // Cleanup on unmount
+  useEffect(() => () => { window.speechSynthesis.cancel(); }, []);
+
+  // Auto-scroll to current verse
+  useEffect(() => {
+    if (!isPlaying) return;
+    document.getElementById(`v-${currentVerseIdx}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [currentVerseIdx, isPlaying]);
+
+  // ---
+
   function verseKey(v: SelectedVerse) {
     return `${v.bookName} ${v.chapter}:${v.number}`;
   }
@@ -182,12 +238,18 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
         <p style={{ fontFamily: S.serif, fontSize: 14, fontWeight: 700, color: S.ink, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
           {chaptersText}
         </p>
-        <div style={{ display: "flex", background: S.surface, borderRadius: 10, border: `1px solid ${S.border}`, overflow: "hidden" }}>
-          {(["nvi", "acf"] as Translation[]).map((t) => (
-            <button key={t} onClick={() => switchTranslation(t)} disabled={loading} style={{ padding: "7px 13px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, background: translation === t ? S.blue : "transparent", color: translation === t ? "#FFFFFF" : S.gray, letterSpacing: "0.04em", transition: "background 0.15s" }}>
-              {t.toUpperCase()}
-            </button>
-          ))}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+          <div style={{ display: "flex", background: S.surface, borderRadius: 10, border: `1px solid ${S.border}`, overflow: "hidden" }}>
+            {(["nvi", "acf"] as Translation[]).map((t) => (
+              <button key={t} onClick={() => switchTranslation(t)} disabled={loading} style={{ padding: "7px 13px", fontSize: 11, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans, background: translation === t ? S.blue : "transparent", color: translation === t ? "#FFFFFF" : S.gray, letterSpacing: "0.04em", transition: "background 0.15s" }}>
+                {t.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <button onClick={togglePlay} style={{ background: isPlaying ? S.blue : S.surface, color: isPlaying ? "#FFF" : S.gray, border: `1px solid ${isPlaying ? S.blue : S.border}`, borderRadius: 99, padding: "5px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontFamily: S.sans, transition: "all 0.15s" }}>
+            <SpeakerIcon size={12} color={isPlaying ? "#FFF" : S.gray} />
+            {isPlaying ? "Pausar" : "Ouvir"}
+          </button>
         </div>
       </div>
 
@@ -214,16 +276,21 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                   {ch.verses.map((verse) => {
                     const key = `${ch.bookName} ${ch.chapter}:${verse.number}`;
                     const isHighlighted = highlightedVerses.has(key);
+                    const flatIdx = verseIndexMap.get(`${ch.bookName}-${ch.chapter}-${verse.number}`) ?? -1;
+                    const isCurrentVerse = isPlaying && currentVerseIdx === flatIdx;
                     return (
                       <p
                         key={verse.number}
+                        id={`v-${flatIdx}`}
                         onClick={() => handleVerseClick({ bookName: ch.bookName, chapter: ch.chapter, number: verse.number, text: verse.text })}
                         style={{
                           fontFamily: S.serif, fontSize: 17, lineHeight: 1.9, color: "#3A3530",
                           cursor: isPro ? "pointer" : "default",
-                          background: isHighlighted ? "#EBF3FA" : selectedVerse?.number === verse.number && selectedVerse?.chapter === ch.chapter ? "#EBF3FA" : "transparent",
+                          background: isCurrentVerse ? "#FFF3E0" : isHighlighted ? "#EBF3FA" : selectedVerse?.number === verse.number && selectedVerse?.chapter === ch.chapter ? "#EBF3FA" : "transparent",
                           borderRadius: 6, padding: "2px 4px", margin: "0 -4px",
-                          transition: "background 0.15s",
+                          transition: "background 0.2s",
+                          borderLeft: isCurrentVerse ? `3px solid ${S.blue}` : "3px solid transparent",
+                          paddingLeft: 8,
                         }}
                       >
                         <sup style={{ fontSize: 10, fontWeight: 700, color: S.blue, marginRight: 4, verticalAlign: "super", fontFamily: S.sans }}>
@@ -339,6 +406,43 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
         {isPro && <p style={{ fontSize: 10, color: S.muted, marginBottom: 4 }}>Toque em um versículo para anotar</p>}
         <p style={{ fontSize: 11, color: S.muted }}>Dia {dayNumber} · {chaptersText} · {translation.toUpperCase()}</p>
       </div>
+
+      {/* Floating audio player */}
+      {(isPlaying || currentVerseIdx > 0) && (
+        <div style={{ position: "fixed", bottom: "calc(100px + env(safe-area-inset-bottom))", left: 20, right: 20, maxWidth: 440, margin: "0 auto", background: "rgba(255,255,255,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderRadius: 20, border: `1px solid ${S.border}`, boxShadow: "0 8px 32px rgba(0,0,0,0.14)", padding: "14px 18px", zIndex: 50 }}>
+          {/* Controls row */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button onClick={() => speak(Math.max(0, currentVerseIdx - 5))} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+              <SkipBackIcon size={18} color={S.gray} />
+            </button>
+            <button onClick={togglePlay} style={{ width: 40, height: 40, borderRadius: 99, background: S.blue, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              {isPlaying ? <PauseIcon size={16} color="#FFF" /> : <PlayIcon size={16} color="#FFF" />}
+            </button>
+            <button onClick={() => speak(Math.min(verseList.length - 1, currentVerseIdx + 5))} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+              <SkipForwardIcon size={18} color={S.gray} />
+            </button>
+            <div style={{ flex: 1, overflow: "hidden", paddingLeft: 4 }}>
+              <p style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 700, color: S.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                {verseList[currentVerseIdx]?.label ?? ""}
+              </p>
+              <p style={{ fontSize: 10, color: S.muted, fontFamily: S.sans, marginTop: 1 }}>
+                {Math.min(currentVerseIdx + 1, verseList.length)} de {verseList.length} versículos
+              </p>
+            </div>
+            <button onClick={stopAudio} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
+              <XIcon size={18} color={S.muted} />
+            </button>
+          </div>
+          {/* Speed row */}
+          <div style={{ display: "flex", gap: 6, marginTop: 10, justifyContent: "center" }}>
+            {[0.75, 1, 1.25, 1.5].map(s => (
+              <button key={s} onClick={() => { speedRef.current = s; setSpeed(s); }} style={{ padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700, background: speed === s ? S.blue : S.surface, color: speed === s ? "#FFF" : S.gray, border: `1px solid ${speed === s ? S.blue : S.border}`, cursor: "pointer", fontFamily: S.sans, transition: "all 0.15s" }}>
+                {s}×
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Verse note bottom sheet */}
       {selectedVerse && (
