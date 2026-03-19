@@ -1,11 +1,11 @@
 {
-  "name": "Jornada Bíblica",
-  "short_name": "Jornada",
-  "description": "Em 9 meses, você pode ler a Bíblia inteira.",
+  "name": "Telos",
+  "short_name": "Telos",
+  "description": "Leia a Bíblia inteira. No seu ritmo.",
   "start_url": "/hoje",
   "display": "standalone",
-  "background_color": "#fef3c7",
-  "theme_color": "#f59e0b",
+  "background_color": "#F7F3EE",
+  "theme_color": "#F7F3EE",
   "orientation": "portrait",
   "icons": [
     {
