@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PACE_DAYS, PACE_LABELS } from "@/lib/reading-plan";
+import { FireIcon, TrophyIcon, CrownIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -72,11 +73,11 @@ export default async function ProgressoPage() {
         {/* Streak stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {[
-            { label: "Sequência atual", value: streak?.current_streak ?? 0, icon: "🔥" },
-            { label: "Maior sequência", value: streak?.longest_streak ?? 0, icon: "🏆" },
+            { label: "Sequência atual", value: streak?.current_streak ?? 0, icon: <FireIcon size={28} color="#E07A30" /> },
+            { label: "Maior sequência", value: streak?.longest_streak ?? 0, icon: <TrophyIcon size={28} color={S.blue} /> },
           ].map((stat) => (
             <div key={stat.label} style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, textAlign: "center" as const, boxShadow: "0 1px 6px rgba(0,0,0,0.05)" }}>
-              <div style={{ fontSize: 26, marginBottom: 10 }}>{stat.icon}</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>{stat.icon}</div>
               <p style={{ fontFamily: S.serif, fontSize: 40, fontWeight: 900, color: S.ink, letterSpacing: "-1.5px" }}>{stat.value}</p>
               <p style={{ fontSize: 11, color: S.gray, marginTop: 6, fontFamily: S.sans }}>{stat.label}</p>
             </div>
@@ -92,7 +93,7 @@ export default async function ProgressoPage() {
           </div>
         ) : (
           <div style={{ background: S.blue, borderRadius: 20, padding: "28px", textAlign: "center" as const }}>
-            <p style={{ fontSize: 36, marginBottom: 10 }}>👑</p>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}><CrownIcon size={36} color="#FFFFFF" /></div>
             <p style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: "#FFFFFF" }}>Você leu a Bíblia inteira!</p>
           </div>
         )}

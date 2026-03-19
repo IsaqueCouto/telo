@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import React from "react";
+import { ZapIcon, BookOpenIcon, TempleIcon, PlayCircleIcon, PencilIcon, MessageIcon, ShieldIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -16,13 +18,13 @@ const S = {
 };
 
 const FEATURES = [
-  { icon: "⚡", title: "Escolha seu ritmo",     desc: "Leia em 3 meses, 6 meses ou 1 ano" },
-  { icon: "📖", title: "Explicação diária",      desc: "Resumo e explicação do que você leu, gerado por IA" },
-  { icon: "🏛️", title: "Contexto histórico",    desc: "Entenda a época e cultura de cada livro" },
-  { icon: "▶️", title: "Vídeos sugeridos",       desc: "Links diretos no YouTube para cada leitura" },
-  { icon: "✏️", title: "Anotações",              desc: "Salve reflexões e insights de cada dia" },
-  { icon: "💬", title: "Perguntas de reflexão",  desc: "Para estudo individual ou em grupo" },
-  { icon: "🛡️", title: "Dia de graça",           desc: "Pule 1 dia por semana sem perder o streak" },
+  { icon: <ZapIcon size={20} color="#3B82C4" />,         title: "Escolha seu ritmo",     desc: "Leia em 3 meses, 6 meses ou 1 ano" },
+  { icon: <BookOpenIcon size={20} color="#3B82C4" />,    title: "Explicação diária",      desc: "Resumo e explicação do que você leu, gerado por IA" },
+  { icon: <TempleIcon size={20} color="#3B82C4" />,      title: "Contexto histórico",    desc: "Entenda a época e cultura de cada livro" },
+  { icon: <PlayCircleIcon size={20} color="#3B82C4" />,  title: "Vídeos sugeridos",       desc: "Links diretos no YouTube para cada leitura" },
+  { icon: <PencilIcon size={20} color="#3B82C4" />,      title: "Anotações",              desc: "Salve reflexões e insights de cada dia" },
+  { icon: <MessageIcon size={20} color="#3B82C4" />,     title: "Perguntas de reflexão",  desc: "Para estudo individual ou em grupo" },
+  { icon: <ShieldIcon size={20} color="#3B82C4" />,      title: "Dia de graça",           desc: "Pule 1 dia por semana sem perder o streak" },
 ];
 
 export default function ProPage() {
@@ -59,7 +61,7 @@ export default function ProPage() {
       <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: 2, marginBottom: 28 }}>
         {FEATURES.map((f, i) => (
           <div key={f.title} style={{ background: S.card, borderRadius: i === 0 ? "16px 16px 4px 4px" : i === FEATURES.length - 1 ? "4px 4px 16px 16px" : 4, padding: "16px 20px", border: `1px solid ${S.border}`, display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontSize: 20, flexShrink: 0, width: 32, textAlign: "center" as const }}>{f.icon}</span>
+            <div style={{ flexShrink: 0, width: 32, display: "flex", alignItems: "center", justifyContent: "center" }}>{f.icon}</div>
             <div>
               <p style={{ fontFamily: S.sans, fontSize: 14, fontWeight: 700, color: S.ink, marginBottom: 2 }}>{f.title}</p>
               <p style={{ fontFamily: S.sans, fontSize: 13, color: S.gray }}>{f.desc}</p>

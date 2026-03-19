@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { PrayIcon, BookOpenIcon, StarIcon, MicIcon, MusicIcon, LockIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -47,12 +48,19 @@ const MOOD_ICONS: Record<string, (p: { active: boolean }) => React.ReactElement>
   ansioso: AnsisoIcon, triste: TristeIcon, grato: GratoIcon, perdido: PerdidoIcon, cansado: CansadoIcon,
 };
 
+const CATEGORY_ICONS: Record<string, (color: string) => React.ReactElement> = {
+  oracoes:    (c) => <PrayIcon    size={14} color={c} />,
+  meditacao:  (c) => <BookOpenIcon size={14} color={c} />,
+  versiculos: (c) => <StarIcon    size={14} color={c} />,
+  historias:  (c) => <MicIcon     size={14} color={c} />,
+  louvor:     (c) => <MusicIcon   size={14} color={c} />,
+};
 const CATEGORIES = [
-  { id: "oracoes",   label: "Orações",    icon: "🙏" },
-  { id: "meditacao", label: "Meditações", icon: "📖" },
-  { id: "versiculos",label: "Versículos", icon: "✦" },
-  { id: "historias", label: "Histórias",  icon: "🎙" },
-  { id: "louvor",    label: "Louvor",     icon: "🎵" },
+  { id: "oracoes",    label: "Orações"    },
+  { id: "meditacao",  label: "Meditações" },
+  { id: "versiculos", label: "Versículos" },
+  { id: "historias",  label: "Histórias"  },
+  { id: "louvor",     label: "Louvor"     },
 ];
 
 export default function ExplorarPage() {
@@ -126,8 +134,8 @@ export default function ExplorarPage() {
                 <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.gray, cursor: "pointer", fontFamily: S.sans }}>
                   Compartilhar
                 </button>
-                <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans }}>
-                  🔒 Ouvir (Pro)
+                <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <LockIcon size={12} color={S.muted} /> Ouvir (Pro)
                 </button>
               </div>
             </div>
@@ -154,7 +162,7 @@ export default function ExplorarPage() {
                     transition: "all 0.2s",
                   }}
                 >
-                  <span style={{ fontSize: 13 }}>{cat.icon}</span>
+                  {CATEGORY_ICONS[cat.id](isActive ? "#FFFFFF" : "#8C8279")}
                   <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? "#FFFFFF" : S.gray, fontFamily: S.sans }}>{cat.label}</span>
                 </button>
               );
@@ -211,7 +219,7 @@ export default function ExplorarPage() {
               </div>
 
               <div style={{ background: S.surface, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
-                <p style={{ fontSize: 13, color: S.muted, fontFamily: S.sans }}>Mais conteúdo chegando em breve 🙏</p>
+                <p style={{ fontSize: 13, color: S.muted, fontFamily: S.sans }}>Mais conteúdo chegando em breve</p>
               </div>
             </>
           )}

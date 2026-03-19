@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/client";
+import { BookOpenIcon, TempleIcon, PlayCircleIcon, MessageIcon, PencilIcon, LockIcon, SpeakerIcon, CheckCircleIcon } from "@/components/icons";
 import type { BibleChapter, Translation } from "@/lib/bible";
 import type { Devotional, Note, Streak } from "@/lib/types";
 
@@ -34,7 +35,7 @@ const mdComponents = {
   strong: ({ children }: any) => <strong style={{ color: S.ink, fontWeight: 700 }}>{children}</strong>,
 };
 
-function Accordion({ label, icon, children }: { label: string; icon: string; children: React.ReactNode }) {
+function Accordion({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ background: S.card, borderRadius: 16, border: `1px solid ${S.border}`, overflow: "hidden" }}>
@@ -43,7 +44,7 @@ function Accordion({ label, icon, children }: { label: string; icon: string; chi
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", background: "none", border: "none", cursor: "pointer", textAlign: "left" as const }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 15 }}>{icon}</span>
+          <span style={{ display: "flex", alignItems: "center" }}>{icon}</span>
           <span style={{ fontFamily: S.sans, fontSize: 13, fontWeight: 700, color: S.ink }}>{label}</span>
         </div>
         <span style={{ fontSize: 12, color: S.gray, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s", display: "inline-block" }}>▾</span>
@@ -198,7 +199,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
           </div>
         ) : chapters.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 80, gap: 10 }}>
-            <p style={{ fontSize: 32 }}>📖</p>
+            <BookOpenIcon size={40} color={S.muted} />
             <p style={{ fontSize: 14, color: S.gray, textAlign: "center" as const }}>Texto bíblico não encontrado.</p>
           </div>
         ) : (
@@ -230,7 +231,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                         </sup>
                         {verse.text}
                         {isHighlighted && (
-                          <span style={{ marginLeft: 4, fontSize: 10, color: S.blue }}>✎</span>
+                          <span style={{ marginLeft: 4, display: "inline-flex", verticalAlign: "middle" }}><PencilIcon size={11} color={S.blue} /></span>
                         )}
                       </p>
                     );
@@ -247,7 +248,8 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                   <p style={{ fontSize: 13, color: S.gray, marginTop: 4 }}>Continue amanhã!</p>
                 </div>
               ) : (
-                <button onClick={markAsRead} disabled={isPending} style={{ width: "100%", background: isPending ? S.muted : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "18px 20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", transition: "background 0.2s" }}>
+                <button onClick={markAsRead} disabled={isPending} style={{ width: "100%", background: isPending ? S.muted : S.blue, color: "#FFFFFF", borderRadius: 16, padding: "18px 20px", fontFamily: S.serif, fontSize: 17, fontWeight: 900, border: "none", cursor: "pointer", letterSpacing: "-0.2px", transition: "background 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  <CheckCircleIcon size={18} color="#FFFFFF" />
                   {isPending ? "Salvando..." : "Li hoje"}
                 </button>
               )}
@@ -259,24 +261,24 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                 <p style={{ fontSize: 11, color: S.gray, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 600, marginBottom: 4 }}>Conteúdo Pro</p>
 
                 {devotional.reflection && (
-                  <Accordion label="O que você leu" icon="📖">
+                  <Accordion label="O que você leu" icon={<BookOpenIcon size={15} color={S.gray} />}>
                     <ReactMarkdown components={mdComponents}>{devotional.reflection}</ReactMarkdown>
                   </Accordion>
                 )}
 
                 {devotional.historical_context && (
-                  <Accordion label="Contexto histórico" icon="🏛">
+                  <Accordion label="Contexto histórico" icon={<TempleIcon size={15} color={S.gray} />}>
                     <ReactMarkdown components={mdComponents}>{devotional.historical_context}</ReactMarkdown>
                   </Accordion>
                 )}
 
                 {devotional.youtube_search_terms && devotional.youtube_search_terms.length > 0 && (
-                  <Accordion label="Aprofunde-se" icon="▶">
+                  <Accordion label="Aprofunde-se" icon={<PlayCircleIcon size={15} color={S.gray} />}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {devotional.youtube_search_terms.map((term, i) => (
                         <a key={i} href={`https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`} target="_blank" rel="noopener noreferrer"
                           style={{ display: "flex", alignItems: "center", gap: 10, background: S.surface, borderRadius: 10, padding: "12px 14px", textDecoration: "none" }}>
-                          <span style={{ fontSize: 13, color: S.blue, flexShrink: 0 }}>▶</span>
+                          <PlayCircleIcon size={16} color={S.blue} />
                           <span style={{ fontSize: 13, color: "#4A4540", lineHeight: 1.4 }}>{term}</span>
                         </a>
                       ))}
@@ -285,7 +287,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                 )}
 
                 {devotional.discussion_questions && devotional.discussion_questions.length > 0 && (
-                  <Accordion label="Para refletir" icon="💭">
+                  <Accordion label="Para refletir" icon={<MessageIcon size={15} color={S.gray} />}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                       {devotional.discussion_questions.map((q, i) => (
                         <div key={i} style={{ display: "flex", gap: 10, paddingBottom: 12, borderBottom: i < devotional.discussion_questions!.length - 1 ? `1px solid ${S.border}` : "none" }}>
@@ -297,7 +299,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                   </Accordion>
                 )}
 
-                <Accordion label="Anotações gerais" icon="✏️">
+                <Accordion label="Anotações gerais" icon={<PencilIcon size={15} color={S.gray} />}>
                   <textarea
                     value={generalNote}
                     onChange={(e) => setGeneralNote(e.target.value)}

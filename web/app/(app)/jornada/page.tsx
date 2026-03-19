@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PACE_DAYS, PACE_LABELS } from "@/lib/reading-plan";
+import { FireIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -102,7 +103,10 @@ export default async function JornadaPage() {
               <p style={{ fontSize: 11, color: S.gray, marginTop: 2, fontFamily: S.sans }}>dias lidos</p>
             </div>
             <div>
-              <p style={{ fontFamily: S.serif, fontSize: 28, fontWeight: 900, color: S.blue, letterSpacing: "-1px", lineHeight: 1 }}>{streak?.current_streak ?? 0} 🔥</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <p style={{ fontFamily: S.serif, fontSize: 28, fontWeight: 900, color: S.blue, letterSpacing: "-1px", lineHeight: 1 }}>{streak?.current_streak ?? 0}</p>
+                <FireIcon size={22} color="#E07A30" />
+              </div>
               <p style={{ fontSize: 11, color: S.gray, marginTop: 2, fontFamily: S.sans }}>sequência atual</p>
             </div>
             <div>

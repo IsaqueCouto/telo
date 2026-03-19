@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { Profile, Devotional, Streak } from "@/lib/types";
+import { FireIcon, BookOpenIcon, MusicIcon, LockIcon, SpeakerIcon, CheckCircleIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -193,7 +194,7 @@ function StreakBar({ streak, currentBook, bookStart, bookEnd, dayNumber }: {
     <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 18 }}>🔥</span>
+          <FireIcon size={20} color="#E07A30" />
           <span style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: S.ink }}>{current}</span>
           <span style={{ fontSize: 12, color: S.gray, fontFamily: S.sans }}>{current === 1 ? "dia" : "dias"}</span>
         </div>
@@ -208,9 +209,12 @@ function StreakBar({ streak, currentBook, bookStart, bookEnd, dayNumber }: {
         <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${S.blue}, #5B9BD5)`, borderRadius: 99, transition: "width 0.8s ease" }} />
       </div>
       {currentBook && (
-        <p style={{ fontSize: 10, color: S.muted, marginTop: 6, fontFamily: S.sans }}>
-          📖 {currentBook} — {bookLeft === 0 ? "último dia!" : `${bookLeft} ${bookLeft === 1 ? "dia restante" : "dias restantes"}`}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
+          <BookOpenIcon size={11} color={S.muted} />
+          <p style={{ fontSize: 10, color: S.muted, fontFamily: S.sans }}>
+            {currentBook} — {bookLeft === 0 ? "último dia!" : `${bookLeft} ${bookLeft === 1 ? "dia restante" : "dias restantes"}`}
+          </p>
+        </div>
       )}
     </div>
   );
@@ -292,8 +296,8 @@ function MoodSelector() {
             >
               Compartilhar
             </button>
-            <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "11px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans }}>
-              🔒 Ouvir (Pro)
+            <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "11px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <LockIcon size={13} color={S.muted} /> Ouvir (Pro)
             </button>
           </div>
         </div>
@@ -334,12 +338,12 @@ function Devocional({ reflection, isPro }: { reflection: string | null | undefin
 
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${S.border}`, display: "flex", gap: 8 }}>
         {isPro ? (
-          <button style={{ flex: 1, background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}>
-            ▶ Ouvir devocional
+          <button style={{ flex: 1, background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <SpeakerIcon size={14} color="#FFFFFF" /> Ouvir devocional
           </button>
         ) : (
-          <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans }}>
-            🔒 Ouvir em português (Pro)
+          <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <LockIcon size={13} color={S.muted} /> Ouvir em português (Pro)
           </button>
         )}
       </div>
@@ -391,7 +395,8 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
         </div>
         {completedToday && (
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(46,125,50,0.10)", border: "1px solid rgba(46,125,50,0.25)", borderRadius: 100, padding: "7px 13px" }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#2E7D32", fontFamily: S.sans }}>Lido ✓</span>
+            <CheckCircleIcon size={13} color="#2E7D32" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#2E7D32", fontFamily: S.sans }}>Lido</span>
           </div>
         )}
       </div>
@@ -421,7 +426,7 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
                 {devotional.chapters_text}
               </p>
               <Link href="/leitura" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: completedToday ? S.surface : S.blue, borderRadius: 12, padding: "14px", textDecoration: "none", border: completedToday ? `1px solid ${S.border}` : "none" }}>
-                <span style={{ fontSize: 14 }}>📖</span>
+                <BookOpenIcon size={16} color={completedToday ? S.gray : "#FFFFFF"} />
                 <span style={{ fontSize: 14, fontWeight: 700, color: completedToday ? S.gray : "#FFFFFF", fontFamily: S.sans }}>
                   {completedToday ? "Reler" : "Ler agora"}
                 </span>
@@ -475,7 +480,7 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
           <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Música para hoje</p>
           <div style={{ display: "flex", alignItems: "center", gap: 12, background: S.surface, borderRadius: 12, padding: "14px 16px" }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: S.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: 16 }}>🎵</span>
+              <MusicIcon size={18} color={S.gray} />
             </div>
             <div>
               <p style={{ fontSize: 13, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>Em breve</p>
@@ -486,9 +491,10 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
 
         {/* Teaser when not yet read */}
         {!completedToday && devotional?.reflection && (
-          <div style={{ background: S.surface, borderRadius: 16, padding: "16px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
+          <div style={{ background: S.surface, borderRadius: 16, padding: "16px 20px", border: `1px solid ${S.border}`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <BookOpenIcon size={14} color={S.gray} />
             <p style={{ fontSize: 13, color: S.gray, fontFamily: S.sans }}>
-              📖 Conclua a leitura de hoje para desbloquear o devocionário e mais conteúdo
+              Conclua a leitura para desbloquear o devocionário
             </p>
           </div>
         )}
