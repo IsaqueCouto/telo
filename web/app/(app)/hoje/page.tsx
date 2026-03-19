@@ -21,7 +21,7 @@ export default async function HojePage() {
 
   const [{ data: devotional }, { data: progress }, { data: streak }] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase.from("devotionals").select("day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference").eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>,
+    (supabase.from("devotionals").select("day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection").eq("day_number", dayNumber).eq("pace", profile.pace).single() as any) as Promise<{ data: Devotional | null }>,
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).eq("day_number", dayNumber).single(),
     supabase.from("streaks").select("current_streak, longest_streak, last_read_date").eq("user_id", user.id).single(),
   ]);

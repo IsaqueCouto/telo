@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { Profile, Devotional, Streak } from "@/lib/types";
+import { MILESTONES } from "@/lib/reading-plan";
 
 const S = {
   bg:      "#F7F3EE",
@@ -20,6 +21,16 @@ const S = {
 const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
+const MOODS = [
+  { id: "ansioso", label: "Ansioso", icon: "🌊", verse: "Filipenses 4:6-7", text: "Não andeis ansiosos por coisa alguma; antes em tudo fazei os vossos pedidos conhecidos a Deus por meio de oração e súplica.", reflection: "A ansiedade muitas vezes nos faz esquecer que não estamos sozinhos. Deus conhece cada preocupação que você carrega hoje — não precisa carregá-las sozinho. Entregue ao Senhor o que você não consegue resolver, e receba a paz que ultrapassa todo entendimento." },
+  { id: "triste",  label: "Triste",  icon: "🌧", verse: "Salmo 34:18", text: "Perto está o Senhor dos que têm o coração quebrantado e salva os de espírito abatido.", reflection: "Sentir tristeza não é fraqueza — é humano. Deus não se afasta de corações feridos; Ele se aproxima. Você não precisa fingir que está bem; Ele te encontra exatamente onde você está." },
+  { id: "grato",   label: "Grato",   icon: "☀️", verse: "Salmo 100:4", text: "Entrai nos seus átrios com ações de graças, nos seus átrios com hinos. Rendei-lhe graças e bendizei o seu nome.", reflection: "Gratidão é um ato de fé — é reconhecer que as bênçãos não são coincidência. Que hoje você carregue essa leveza no coração, sabendo que as boas dádivas vêm d'Ele." },
+  { id: "perdido", label: "Perdido", icon: "🧭", verse: "Jeremias 29:11", text: "Porque eu bem sei os planos que tenho para vós, diz o Senhor, planos de paz e não de mal, para vos dar um futuro e uma esperança.", reflection: "Quando não sabemos o caminho, é fácil achar que Deus também não sabe. Mas Ele não apenas conhece o caminho — Ele é o caminho. Confie nos planos dEle mesmo quando você não os entende ainda." },
+  { id: "cansado", label: "Cansado", icon: "🌙", verse: "Mateus 11:28", text: "Vinde a mim, todos os que estais cansados e sobrecarregados, e eu vos aliviarei.", reflection: "O cansaço que você sente hoje é real, e Deus o vê. Jesus não pede que você chegue com força — Ele convida exatamente os que estão esgotados. Descanse nEle hoje." },
+];
+
+// ── Horizon Calendar ────────────────────────────────────────────────────────
+
 function HorizonCalendar({ dayNumber, totalDays, completedToday, streak }: {
   dayNumber: number;
   totalDays: number;
@@ -30,118 +41,229 @@ function HorizonCalendar({ dayNumber, totalDays, completedToday, streak }: {
   const today = new Date();
   const currentStreak = streak?.current_streak ?? 0;
 
-  // Show 21 days: 7 before today through 13 after
   const days = Array.from({ length: 21 }, (_, i) => {
     const d = new Date(today);
     d.setDate(today.getDate() - 7 + i);
-    const offset = i - 7; // negative = past, 0 = today, positive = future
-    // A day is "completed" if it's today (and completedToday) or if it's within the streak window
-    const isPast = offset < 0;
+    const offset = i - 7;
     const isToday = offset === 0;
-    const isFuture = offset > 0;
-    // Mark past days as completed based on streak
+    const isPast  = offset < 0;
     const isCompleted = isToday
       ? completedToday
       : isPast && currentStreak > 0 && offset >= -(currentStreak - (completedToday ? 1 : 0));
-
     return {
       date: d.getDate(),
       weekday: WEEKDAYS_SHORT[d.getDay()],
-      month: d.getMonth(),
       isToday,
       isPast,
-      isFuture,
+      isFuture: offset > 0,
       isCompleted,
       key: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
     };
   });
 
-  // Scroll to center today on mount
   useEffect(() => {
     if (scrollRef.current) {
-      const container = scrollRef.current;
-      const todayEl = container.querySelector("[data-today='true']") as HTMLElement;
-      if (todayEl) {
-        const offset = todayEl.offsetLeft - container.clientWidth / 2 + todayEl.offsetWidth / 2;
-        container.scrollLeft = offset;
-      }
+      const c = scrollRef.current;
+      const el = c.querySelector("[data-today='true']") as HTMLElement;
+      if (el) c.scrollLeft = el.offsetLeft - c.clientWidth / 2 + el.offsetWidth / 2;
     }
   }, []);
 
   return (
     <div style={{ background: S.card, borderRadius: 20, padding: "18px 0 16px", border: `1px solid ${S.border}` }}>
-      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px", marginBottom: 16 }}>
         <p style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 900, color: S.ink }}>
           {MONTHS[today.getMonth()]} {today.getFullYear()}
         </p>
         <p style={{ fontFamily: S.sans, fontSize: 11, color: S.gray, fontWeight: 500 }}>Dia {dayNumber} de {totalDays}</p>
       </div>
-
-      {/* Scrollable days */}
-      <div
-        ref={scrollRef}
-        className="no-scrollbar"
-        style={{ display: "flex", gap: 4, overflowX: "auto", padding: "0 16px", scrollBehavior: "smooth" }}
-      >
+      <div ref={scrollRef} className="no-scrollbar" style={{ display: "flex", gap: 4, overflowX: "auto", padding: "0 16px", scrollBehavior: "smooth" }}>
         {days.map((d) => (
           <div
             key={d.key}
             data-today={d.isToday}
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-              flexShrink: 0,
-              padding: d.isToday ? "10px 6px 12px" : "10px 6px 12px",
-              borderRadius: 14,
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+              flexShrink: 0, padding: "10px 6px 12px", borderRadius: 14,
               background: d.isToday ? S.blue : "transparent",
               minWidth: d.isToday ? 44 : 38,
-              transition: "background 0.2s",
             }}
           >
-            {/* Weekday label */}
-            <span style={{
-              fontSize: 9,
-              fontFamily: S.sans,
-              fontWeight: 500,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase" as const,
-              color: d.isToday ? "rgba(255,255,255,0.75)" : d.isFuture ? S.muted : S.gray,
-            }}>
+            <span style={{ fontSize: 9, fontFamily: S.sans, fontWeight: 500, letterSpacing: "0.06em", textTransform: "uppercase" as const, color: d.isToday ? "rgba(255,255,255,0.75)" : d.isFuture ? S.muted : S.gray }}>
               {d.weekday}
             </span>
-
-            {/* Date number */}
-            <span style={{
-              fontFamily: S.serif,
-              fontSize: d.isToday ? 18 : 15,
-              fontWeight: 900,
-              color: d.isToday ? "#FFFFFF" : d.isFuture ? S.muted : S.ink,
-              lineHeight: 1,
-            }}>
+            <span style={{ fontFamily: S.serif, fontSize: d.isToday ? 18 : 15, fontWeight: 900, color: d.isToday ? "#FFFFFF" : d.isFuture ? S.muted : S.ink, lineHeight: 1 }}>
               {d.date}
             </span>
-
-            {/* Completion dot */}
-            <div style={{
-              width: 5,
-              height: 5,
-              borderRadius: "50%",
-              background: d.isToday
-                ? (d.isCompleted ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.25)")
-                : d.isCompleted
-                  ? S.blue
-                  : "transparent",
-              transition: "background 0.2s",
-            }} />
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: d.isToday ? (d.isCompleted ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.25)") : d.isCompleted ? S.blue : "transparent" }} />
           </div>
         ))}
       </div>
     </div>
   );
 }
+
+// ── Streak bar with milestone progress ──────────────────────────────────────
+
+function StreakBar({ streak }: { streak: Streak | null }) {
+  const current = streak?.current_streak ?? 0;
+  const nextMilestone = MILESTONES.find(m => m.day > current);
+  const prevDay = [...MILESTONES].reverse().find(m => m.day <= current)?.day ?? 0;
+
+  if (!nextMilestone) {
+    return (
+      <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}`, display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 20 }}>👑</span>
+        <div>
+          <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 900, color: S.ink }}>🔥 {current} dias</p>
+          <p style={{ fontSize: 11, color: S.gray, fontFamily: S.sans, marginTop: 2 }}>Você completou todos os marcos!</p>
+        </div>
+      </div>
+    );
+  }
+
+  const range = nextMilestone.day - prevDay;
+  const filled = current - prevDay;
+  const pct = Math.round((filled / range) * 100);
+  const daysLeft = nextMilestone.day - current;
+
+  return (
+    <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 18 }}>🔥</span>
+          <span style={{ fontFamily: S.serif, fontSize: 20, fontWeight: 900, color: S.ink }}>{current}</span>
+          <span style={{ fontSize: 12, color: S.gray, fontFamily: S.sans }}>{current === 1 ? "dia" : "dias"}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span style={{ fontSize: 11, color: S.gray, fontFamily: S.sans }}>+{daysLeft} dias →</span>
+          <span style={{ fontSize: 16 }}>{nextMilestone.emoji}</span>
+        </div>
+      </div>
+      <div style={{ height: 5, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${S.blue}, #5B9BD5)`, borderRadius: 99, transition: "width 0.8s ease" }} />
+      </div>
+      <p style={{ fontSize: 10, color: S.muted, marginTop: 6, fontFamily: S.sans }}>
+        {nextMilestone.emoji} {nextMilestone.message} — em {daysLeft} {daysLeft === 1 ? "dia" : "dias"}
+      </p>
+    </div>
+  );
+}
+
+// ── Mood selector ────────────────────────────────────────────────────────────
+
+function MoodSelector() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const mood = MOODS.find(m => m.id === selected);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ background: S.card, borderRadius: 20, padding: "20px 20px 16px", border: `1px solid ${S.border}` }}>
+        <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Como você está hoje?</p>
+        <p style={{ fontSize: 13, color: S.gray, marginBottom: 16, fontFamily: S.sans }}>Selecione seu estado de espírito</p>
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }} className="no-scrollbar">
+          {MOODS.map((m) => {
+            const isActive = selected === m.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => setSelected(isActive ? null : m.id)}
+                style={{
+                  flexShrink: 0,
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
+                  padding: "12px 14px",
+                  borderRadius: 16,
+                  background: isActive ? S.blue : S.surface,
+                  border: `1.5px solid ${isActive ? S.blue : S.border}`,
+                  cursor: "pointer",
+                  transition: "all 0.18s",
+                }}
+              >
+                <span style={{ fontSize: 20 }}>{m.icon}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isActive ? "#FFFFFF" : S.gray, fontFamily: S.sans }}>{m.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {mood && (
+        <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, animation: "fadeSlideIn 0.22s ease" }}>
+          <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Palavra para você</p>
+          <div style={{ borderLeft: `3px solid ${S.blue}`, paddingLeft: 16, marginBottom: 12 }}>
+            <p style={{ fontFamily: S.serif, fontSize: 16, color: "#4A4540", lineHeight: 1.85, fontStyle: "italic" }}>
+              &ldquo;{mood.text}&rdquo;
+            </p>
+          </div>
+          <p style={{ fontSize: 11, color: S.blue, fontWeight: 700, textAlign: "right" as const, marginBottom: 16, fontFamily: S.sans }}>— {mood.verse}</p>
+          <p style={{ fontSize: 14, color: "#4A4540", lineHeight: 1.8, fontFamily: S.sans, marginBottom: 16 }}>{mood.reflection}</p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={async () => {
+                const text = `"${mood.text}" — ${mood.verse}\n\nTelos · Leia a Bíblia inteira.`;
+                if (navigator.share) { await navigator.share({ text }); }
+                else { window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank"); }
+              }}
+              style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "11px", fontSize: 13, fontWeight: 600, color: S.gray, cursor: "pointer", fontFamily: S.sans }}
+            >
+              Compartilhar
+            </button>
+            <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "11px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans }}>
+              🔒 Ouvir (Pro)
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Devocionário ─────────────────────────────────────────────────────────────
+
+function Devocional({ reflection, isPro }: { reflection: string | null | undefined; isPro: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (!reflection) return null;
+
+  const words = reflection.split(" ");
+  const isLong = words.length > 60;
+  const preview = isLong && !expanded ? words.slice(0, 60).join(" ") + "…" : reflection;
+
+  return (
+    <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
+      <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Devocionário</p>
+
+      <div style={{ fontFamily: S.serif, fontSize: 16, color: "#4A4540", lineHeight: 1.85 }}>
+        {preview.split("\n").filter(Boolean).map((line, i) => (
+          <p key={i} style={{ marginBottom: 10 }}>{line}</p>
+        ))}
+      </div>
+
+      {isLong && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{ background: "none", border: "none", color: S.blue, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: S.sans, padding: 0, marginTop: 4 }}
+        >
+          {expanded ? "Mostrar menos" : "Ler tudo"}
+        </button>
+      )}
+
+      <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${S.border}`, display: "flex", gap: 8 }}>
+        {isPro ? (
+          <button style={{ flex: 1, background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}>
+            ▶ Ouvir devocional
+          </button>
+        ) : (
+          <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans }}>
+            🔒 Ouvir em português (Pro)
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 type Props = {
   profile: Profile;
@@ -154,54 +276,60 @@ type Props = {
 };
 
 export function HojeClient({ profile, dayNumber, totalDays, devotional, completedToday, streak, milestone }: Props) {
-  const [currentStreak] = useState(streak?.current_streak ?? 0);
   const firstName = profile.full_name?.split(" ")[0] ?? "Olá";
   const percent   = Math.min(Math.round((dayNumber / totalDays) * 100), 100);
+  const isPro     = profile.plan_type === "pro";
+
+  async function shareVerse() {
+    if (!devotional?.key_verse) return;
+    const text = `"${devotional.key_verse}" — ${devotional.key_verse_reference ?? ""}\n\nTelos · Leia a Bíblia inteira.`;
+    if (navigator.share) { await navigator.share({ text }); }
+    else { window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank"); }
+  }
 
   return (
     <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
 
       {/* Frosted glass sticky header */}
       <div style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 20,
+        position: "sticky", top: 0, zIndex: 20,
         background: "rgba(247, 243, 238, 0.82)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
+        backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
         borderBottom: "1px solid rgba(226, 219, 208, 0.45)",
         padding: "calc(env(safe-area-inset-top) + 44px) 24px 18px",
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "space-between",
+        display: "flex", alignItems: "flex-end", justifyContent: "space-between",
       }}>
         <div>
           <p style={{ fontSize: 12, color: S.gray, marginBottom: 2, fontFamily: S.sans }}>Bom dia,</p>
           <p style={{ fontFamily: S.serif, fontSize: 26, fontWeight: 900, color: S.ink, letterSpacing: "-0.5px", lineHeight: 1 }}>{firstName}</p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(59,130,196,0.10)", border: "1px solid rgba(59,130,196,0.2)", borderRadius: 100, padding: "7px 13px" }}>
-          <span style={{ fontSize: 14 }}>🔥</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: S.blue, fontFamily: S.sans }}>{currentStreak} {currentStreak === 1 ? "dia" : "dias"}</span>
-        </div>
+        {completedToday && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(46,125,50,0.10)", border: "1px solid rgba(46,125,50,0.25)", borderRadius: 100, padding: "7px 13px" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#2E7D32", fontFamily: S.sans }}>Lido ✓</span>
+          </div>
+        )}
       </div>
 
       <div style={{ padding: "20px 24px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
 
-        {/* Horizon Calendar */}
+        {/* 1. Streak bar with milestone progress */}
+        <StreakBar streak={streak} />
+
+        {/* Calendar */}
         <HorizonCalendar dayNumber={dayNumber} totalDays={totalDays} completedToday={completedToday} streak={streak} />
 
-        {/* Progress bar */}
-        <div style={{ background: S.card, borderRadius: 16, padding: "16px 20px", border: `1px solid ${S.border}` }}>
+        {/* Overall progress bar */}
+        <div style={{ background: S.card, borderRadius: 16, padding: "14px 18px", border: `1px solid ${S.border}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
             <span style={{ fontSize: 11, color: S.gray, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.07em", fontFamily: S.sans }}>Progresso total</span>
             <span style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 900, color: S.blue }}>{percent}%</span>
           </div>
           <div style={{ height: 5, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99, transition: "width 0.8s cubic-bezier(0.4,0,0.2,1)" }} />
+            <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99, transition: "width 0.8s ease" }} />
           </div>
         </div>
 
-        {/* Milestone */}
+        {/* Milestone banner */}
         {milestone && (
           <div style={{ background: S.blue, borderRadius: 16, padding: "18px 20px", textAlign: "center" as const }}>
             <div style={{ fontSize: 28, marginBottom: 4 }}>{milestone.emoji}</div>
@@ -209,7 +337,7 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
           </div>
         )}
 
-        {/* Today's reading */}
+        {/* 2. Leitura de hoje */}
         <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
           <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 10, fontFamily: S.sans }}>Leitura de hoje</p>
           {devotional ? (
@@ -217,9 +345,11 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
               <p style={{ fontFamily: S.serif, fontSize: 22, fontWeight: 900, color: S.ink, letterSpacing: "-0.5px", marginBottom: 16, lineHeight: 1.2 }}>
                 {devotional.chapters_text}
               </p>
-              <Link href="/leitura" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: S.blue, borderRadius: 12, padding: "14px", textDecoration: "none" }}>
+              <Link href="/leitura" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: completedToday ? S.surface : S.blue, borderRadius: 12, padding: "14px", textDecoration: "none", border: completedToday ? `1px solid ${S.border}` : "none" }}>
                 <span style={{ fontSize: 14 }}>📖</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF", fontFamily: S.sans }}>Ler agora</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: completedToday ? S.gray : "#FFFFFF", fontFamily: S.sans }}>
+                  {completedToday ? "Reler" : "Ler agora"}
+                </span>
               </Link>
             </>
           ) : (
@@ -227,10 +357,33 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
           )}
         </div>
 
-        {/* Key verse */}
+        {/* ── After reading done: unlock sections ─────────────────────────── */}
+        {completedToday && (
+          <>
+            {/* 3. Devocionário */}
+            <Devocional reflection={devotional?.reflection} isPro={isPro} />
+
+            {/* 4. Mood selector */}
+            <MoodSelector />
+          </>
+        )}
+
+        {/* 5. Versículo do dia — always visible */}
         {devotional?.key_verse && (
           <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
-            <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Versículo do dia</p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, fontFamily: S.sans }}>Versículo do dia</p>
+              <button
+                onClick={shareVerse}
+                style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(59,130,196,0.10)", border: "1px solid rgba(59,130,196,0.2)", borderRadius: 99, padding: "6px 12px", cursor: "pointer", color: S.blue, fontSize: 11, fontWeight: 700, fontFamily: S.sans }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                Compartilhar
+              </button>
+            </div>
             <div style={{ borderLeft: `3px solid ${S.blue}`, paddingLeft: 16, marginBottom: 12 }}>
               <p style={{ fontFamily: S.serif, fontSize: 16, color: "#4A4540", lineHeight: 1.85, fontStyle: "italic" }}>
                 &ldquo;{devotional.key_verse}&rdquo;
@@ -256,14 +409,23 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
           </div>
         </div>
 
-        {/* Read status */}
-        {completedToday && (
-          <div style={{ background: S.card, border: `1.5px solid #C8E6C9`, borderRadius: 16, padding: "20px", textAlign: "center" as const }}>
-            <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: "#2E7D32" }}>Lido hoje ✓</p>
-            <p style={{ fontSize: 13, color: S.gray, marginTop: 4, fontFamily: S.sans }}>Continue amanhã!</p>
+        {/* Teaser when not yet read */}
+        {!completedToday && devotional?.reflection && (
+          <div style={{ background: S.surface, borderRadius: 16, padding: "16px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
+            <p style={{ fontSize: 13, color: S.gray, fontFamily: S.sans }}>
+              📖 Conclua a leitura de hoje para desbloquear o devocionário e mais conteúdo
+            </p>
           </div>
         )}
+
       </div>
+
+      <style>{`
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
