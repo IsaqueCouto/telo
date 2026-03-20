@@ -29,12 +29,19 @@ export default function RegisterPage() {
     setError("");
     if (password.length < 6) { setError("A senha deve ter pelo menos 6 caracteres."); return; }
     setLoading(true);
+    // Create user via admin API (no email confirmation required)
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, full_name: name, phone }),
+    });
+    const json = await res.json();
+    if (!res.ok) { setError(json.error ?? "Erro ao criar conta."); setLoading(false); return; }
+
+    // Sign in immediately
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name, phone } } });
-    if (error) { setError(error.message); setLoading(false); return; }
-    if (data.user && phone) {
-      await supabase.from("profiles").update({ phone }).eq("id", data.user.id);
-    }
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) { setError(signInError.message); setLoading(false); return; }
     router.push("/hoje"); router.refresh();
   }
 
