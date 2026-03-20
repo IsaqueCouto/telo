@@ -36,6 +36,24 @@ const NEW_TESTAMENT = [
   "Judas","Apocalipse",
 ];
 
+// Standard SBB Portuguese abbreviations
+const ABBR: Record<string, string> = {
+  "Gênesis":"Gn",    "Êxodo":"Êx",      "Levítico":"Lv",    "Números":"Nm",     "Deuteronômio":"Dt",
+  "Josué":"Js",      "Juízes":"Jz",      "Rute":"Rt",        "1 Samuel":"1Sm",   "2 Samuel":"2Sm",
+  "1 Reis":"1Rs",    "2 Reis":"2Rs",     "1 Crônicas":"1Cr", "2 Crônicas":"2Cr", "Esdras":"Esd",
+  "Neemias":"Ne",    "Ester":"Et",       "Jó":"Jó",          "Salmos":"Sl",      "Provérbios":"Pv",
+  "Eclesiastes":"Ec","Cantares":"Ct",    "Isaías":"Is",      "Jeremias":"Jr",    "Lamentações":"Lm",
+  "Ezequiel":"Ez",   "Daniel":"Dn",      "Oseias":"Os",      "Joel":"Jl",        "Amós":"Am",
+  "Obadias":"Ob",    "Jonas":"Jn",       "Miquéias":"Mq",    "Naum":"Na",        "Habacuque":"Hc",
+  "Sofonias":"Sf",   "Ageu":"Ag",        "Zacarias":"Zc",    "Malaquias":"Ml",
+  "Mateus":"Mt",     "Marcos":"Mc",      "Lucas":"Lc",       "João":"Jo",        "Atos":"At",
+  "Romanos":"Rm",    "1 Coríntios":"1Co","2 Coríntios":"2Co","Gálatas":"Gl",     "Efésios":"Ef",
+  "Filipenses":"Fp", "Colossenses":"Cl", "1 Tessalonicenses":"1Ts","2 Tessalonicenses":"2Ts","1 Timóteo":"1Tm",
+  "2 Timóteo":"2Tm", "Tito":"Tt",        "Filemom":"Fm",     "Hebreus":"Hb",     "Tiago":"Tg",
+  "1 Pedro":"1Pe",   "2 Pedro":"2Pe",    "1 João":"1Jo",     "2 João":"2Jo",     "3 João":"3Jo",
+  "Judas":"Jd",      "Apocalipse":"Ap",
+};
+
 export default async function JornadaPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -149,8 +167,8 @@ export default async function JornadaPage() {
                   cursor: "pointer",
                 }}
               >
-                <span style={{ fontSize: 7, color: S.gray, fontFamily: S.sans, fontWeight: 600, textAlign: "center", lineHeight: 1.2, overflow: "hidden" }}>
-                  {book.replace(/^\d+\s/, "").substring(0, 5)}
+                <span style={{ fontSize: 9, color: S.gray, fontFamily: S.sans, fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>
+                  {ABBR[book] ?? book.substring(0, 3)}
                 </span>
               </div>
             ))}
@@ -178,8 +196,8 @@ export default async function JornadaPage() {
                   cursor: "pointer",
                 }}
               >
-                <span style={{ fontSize: 7, color: S.gray, fontFamily: S.sans, fontWeight: 600, textAlign: "center", lineHeight: 1.2 }}>
-                  {book.replace(/^\d+\s/, "").substring(0, 5)}
+                <span style={{ fontSize: 9, color: S.gray, fontFamily: S.sans, fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>
+                  {ABBR[book] ?? book.substring(0, 3)}
                 </span>
               </div>
             ))}
