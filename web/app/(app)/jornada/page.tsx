@@ -12,7 +12,7 @@ const S = {
   muted:   "#C8BEB2",
   ink:     "#0D0D0B",
   blue:    "#3B82C4",
-  serif:   "'Vesper Libre', Georgia, serif",
+  serif:   "'Noto Sans', system-ui, sans-serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
 
@@ -91,7 +91,7 @@ export default async function JornadaPage() {
                 transform="rotate(-90 65 65)"
                 style={{ transition: "stroke-dasharray 1s ease" }}
               />
-              <text x="65" y="60" textAnchor="middle" fontFamily="'Vesper Libre', serif" fontSize="20" fontWeight="900" fill={S.blue}>{percent}%</text>
+              <text x="65" y="60" textAnchor="middle" fontFamily="'Noto Sans', sans-serif" fontSize="20" fontWeight="900" fill={S.blue}>{percent}%</text>
               <text x="65" y="78" textAnchor="middle" fontFamily="'Noto Sans', sans-serif" fontSize="9" fill={S.gray}>da Bíblia</text>
             </svg>
           </div>
