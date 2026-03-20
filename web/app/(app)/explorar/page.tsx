@@ -117,28 +117,45 @@ export default function ExplorarPage() {
         <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6, fontFamily: S.sans }}>Telos</p>
         <h1 style={{ fontFamily: S.serif, fontSize: 32, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 16 }}>Explorar</h1>
 
-        {/* Top tabs */}
-        <div style={{ display: "flex", gap: 0 }}>
-          {(["mente", "musicas"] as const).map((tab) => {
-            const label = tab === "mente" ? "Mente" : "Músicas";
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  flex: 1, background: "none", border: "none", cursor: "pointer",
-                  padding: "10px 0 14px",
-                  fontFamily: S.sans, fontSize: 14, fontWeight: isActive ? 700 : 500,
-                  color: isActive ? S.ink : S.muted,
-                  borderBottom: isActive ? `2px solid ${S.blue}` : "2px solid transparent",
-                  transition: "all 0.2s",
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
+        {/* Floating pill tab switcher */}
+        <div style={{ paddingBottom: 16 }}>
+          <div style={{
+            display: "inline-flex",
+            background: "rgba(255,255,255,0.78)",
+            borderRadius: 30,
+            border: "1px solid rgba(226,219,208,0.55)",
+            backdropFilter: "blur(28px)",
+            WebkitBackdropFilter: "blur(28px)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6)",
+            padding: 4,
+            gap: 2,
+          }}>
+            {(["mente", "musicas"] as const).map((tab) => {
+              const label = tab === "mente" ? "Mente" : "Músicas";
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    padding: "9px 28px",
+                    borderRadius: 26,
+                    border: "none",
+                    cursor: "pointer",
+                    fontFamily: S.sans,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    background: isActive ? S.blue : "transparent",
+                    color: isActive ? "#FFFFFF" : S.gray,
+                    boxShadow: isActive ? "0 4px 14px rgba(59,130,196,0.35)" : "none",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
