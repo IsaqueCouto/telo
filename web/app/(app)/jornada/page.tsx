@@ -1,34 +1,26 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PACE_DAYS, PACE_LABELS, getDayNumber } from "@/lib/reading-plan";
-import { FireIcon, LockIcon } from "@/components/icons";
+import { parseChaptersText } from "@/lib/bible";
+import { BOOK_CHAPTER_COUNT } from "@/lib/bible-meta";
+import { JornadaClient, type BookData } from "./JornadaClient";
 
 const S = {
-  bg:      "#F7F3EE",
-  surface: "#EDE8DF",
-  card:    "#FFFFFF",
-  border:  "#E2DBD0",
-  gray:    "#8C8279",
-  muted:   "#C8BEB2",
-  ink:     "#0D0D0B",
-  blue:    "#3B82C4",
-  serif:   "'Noto Sans', system-ui, sans-serif",
-  sans:    "'Noto Sans', system-ui, sans-serif",
+  bg:   "#F7F3EE",
+  blue: "#3B82C4",
+  ink:  "#0D0D0B",
+  sans: "'Noto Sans', system-ui, sans-serif",
 };
 
-// 66 Bible books grouped by testament
-const OLD_TESTAMENT = [
+const ALL_BOOKS = [
   "Gênesis","Êxodo","Levítico","Números","Deuteronômio",
   "Josué","Juízes","Rute","1 Samuel","2 Samuel",
   "1 Reis","2 Reis","1 Crônicas","2 Crônicas","Esdras",
   "Neemias","Ester","Jó","Salmos","Provérbios",
   "Eclesiastes","Cantares","Isaías","Jeremias","Lamentações",
-  "Ezequiel","Daniel","Oseias","Joel","Amós",
+  "Ezequiel","Daniel","Oséias","Joel","Amós",
   "Obadias","Jonas","Miquéias","Naum","Habacuque",
   "Sofonias","Ageu","Zacarias","Malaquias",
-];
-const NEW_TESTAMENT = [
   "Mateus","Marcos","Lucas","João","Atos",
   "Romanos","1 Coríntios","2 Coríntios","Gálatas","Efésios",
   "Filipenses","Colossenses","1 Tessalonicenses","2 Tessalonicenses","1 Timóteo",
@@ -36,68 +28,6 @@ const NEW_TESTAMENT = [
   "1 Pedro","2 Pedro","1 João","2 João","3 João",
   "Judas","Apocalipse",
 ];
-
-// Standard SBB Portuguese abbreviations
-const ABBR: Record<string, string> = {
-  "Gênesis":"Gn",    "Êxodo":"Êx",      "Levítico":"Lv",    "Números":"Nm",     "Deuteronômio":"Dt",
-  "Josué":"Js",      "Juízes":"Jz",      "Rute":"Rt",        "1 Samuel":"1Sm",   "2 Samuel":"2Sm",
-  "1 Reis":"1Rs",    "2 Reis":"2Rs",     "1 Crônicas":"1Cr", "2 Crônicas":"2Cr", "Esdras":"Esd",
-  "Neemias":"Ne",    "Ester":"Et",       "Jó":"Jó",          "Salmos":"Sl",      "Provérbios":"Pv",
-  "Eclesiastes":"Ec","Cantares":"Ct",    "Isaías":"Is",      "Jeremias":"Jr",    "Lamentações":"Lm",
-  "Ezequiel":"Ez",   "Daniel":"Dn",      "Oseias":"Os",      "Joel":"Jl",        "Amós":"Am",
-  "Obadias":"Ob",    "Jonas":"Jn",       "Miquéias":"Mq",    "Naum":"Na",        "Habacuque":"Hc",
-  "Sofonias":"Sf",   "Ageu":"Ag",        "Zacarias":"Zc",    "Malaquias":"Ml",
-  "Mateus":"Mt",     "Marcos":"Mc",      "Lucas":"Lc",       "João":"Jo",        "Atos":"At",
-  "Romanos":"Rm",    "1 Coríntios":"1Co","2 Coríntios":"2Co","Gálatas":"Gl",     "Efésios":"Ef",
-  "Filipenses":"Fp", "Colossenses":"Cl", "1 Tessalonicenses":"1Ts","2 Tessalonicenses":"2Ts","1 Timóteo":"1Tm",
-  "2 Timóteo":"2Tm", "Tito":"Tt",        "Filemom":"Fm",     "Hebreus":"Hb",     "Tiago":"Tg",
-  "1 Pedro":"1Pe",   "2 Pedro":"2Pe",    "1 João":"1Jo",     "2 João":"2Jo",     "3 João":"3Jo",
-  "Judas":"Jd",      "Apocalipse":"Ap",
-};
-
-const S2 = {
-  bg:      "#F7F3EE",
-  surface: "#EDE8DF",
-  border:  "#E2DBD0",
-  gray:    "#8C8279",
-  muted:   "#C8BEB2",
-  ink:     "#0D0D0B",
-  blue:    "#3B82C4",
-  sans:    "'Noto Sans', system-ui, sans-serif",
-};
-
-function BookTile({ book, isCurrent, isStarted, firstDay }: { book: string; isCurrent: boolean; isStarted: boolean; firstDay?: number }) {
-  const isLocked = !isCurrent && !isStarted;
-  const bg     = isCurrent ? S2.blue  : isStarted ? "#EBF3FA" : S2.surface;
-  const border = isCurrent ? S2.blue  : isStarted ? "#BFDBF7" : S2.border;
-  const color  = isCurrent ? "#FFFFFF" : isStarted ? S2.blue   : S2.muted;
-  const href   = isCurrent ? "/leitura" : isStarted ? `/leitura?day=${firstDay}` : undefined;
-
-  const inner = (
-    <div
-      title={book}
-      style={{
-        aspectRatio: "1", borderRadius: 8, position: "relative",
-        background: bg, border: `1px solid ${border}`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 4, cursor: isLocked ? "default" : "pointer",
-        boxShadow: isCurrent ? "0 2px 8px rgba(59,130,196,0.35)" : "none",
-        transition: "all 0.15s",
-      }}
-    >
-      <span style={{ fontSize: 9, color, fontFamily: S2.sans, fontWeight: 700, textAlign: "center" as const, lineHeight: 1.2 }}>
-        {ABBR[book] ?? book.substring(0, 3)}
-      </span>
-      {isLocked && (
-        <span style={{ position: "absolute", bottom: 2, right: 2, display: "flex", opacity: 0.5 }}>
-          <LockIcon size={8} color={S2.muted} strokeWidth={2} />
-        </span>
-      )}
-    </div>
-  );
-
-  return href ? <Link href={href} style={{ textDecoration: "none" }}>{inner}</Link> : inner;
-}
 
 export default async function JornadaPage() {
   const supabase = await createClient();
@@ -114,41 +44,61 @@ export default async function JornadaPage() {
 
   const completedDayNums = (completedDays ?? []).map((d: { day_number: number }) => d.day_number);
   const todayDayNumber = getDayNumber(profile.start_date);
+  const completedDaySet = new Set(completedDayNums);
 
-  // Fetch devotionals for completed days + today to build book state maps
+  // Fetch devotionals for completed days + today (for chapters_text + books_covered)
   const allDays = [...new Set([...completedDayNums, todayDayNumber])];
   const { data: readDevotionals } = await supabase
     .from("devotionals")
-    .select("day_number, books_covered")
+    .select("day_number, books_covered, chapters_text")
     .eq("pace", profile.pace)
     .in("day_number", allDays);
 
-  // Build: which books have been started, and the first day each book was read
+  const sorted = (readDevotionals ?? []).sort((a, b) => a.day_number - b.day_number);
+
+  // Build which books have been started and which chapters are unlocked per book
   const startedBooks = new Set<string>();
-  const bookFirstDay: Record<string, number> = {};
-  const completedDaySet = new Set(completedDayNums);
-  const sortedDevotionals = (readDevotionals ?? []).sort((a, b) => a.day_number - b.day_number);
-  for (const d of sortedDevotionals) {
+  const bookUnlocked: Record<string, Set<number>> = {};
+
+  for (const d of sorted) {
     if (!completedDaySet.has(d.day_number)) continue;
-    for (const book of (d.books_covered ?? [])) {
-      startedBooks.add(book);
-      if (!bookFirstDay[book]) bookFirstDay[book] = d.day_number;
+    // Track started books
+    for (const book of (d.books_covered ?? [])) startedBooks.add(book);
+    // Parse chapters unlocked
+    for (const { book, chapters } of parseChaptersText(d.chapters_text ?? "")) {
+      if (!bookUnlocked[book]) bookUnlocked[book] = new Set();
+      chapters.forEach(c => bookUnlocked[book].add(c));
     }
   }
-  // Current book = first book in today's reading (whether completed today or not)
-  const todayDevotional = (readDevotionals ?? []).find(d => d.day_number === todayDayNumber);
+
+  // Also include today's chapters in current book (even if not yet completed)
+  const todayDevotional = sorted.find(d => d.day_number === todayDayNumber);
+  if (todayDevotional?.chapters_text) {
+    for (const { book, chapters } of parseChaptersText(todayDevotional.chapters_text)) {
+      if (!bookUnlocked[book]) bookUnlocked[book] = new Set();
+      chapters.forEach(c => bookUnlocked[book].add(c));
+    }
+  }
+
+  // Current book = first book in today's devotional
   const currentBook = todayDevotional?.books_covered?.[0] ?? null;
 
-  const totalDays  = PACE_DAYS[profile.pace as keyof typeof PACE_DAYS];
-  const completed  = completedDayNums.length;
-  const percent    = Math.min(Math.round((completed / totalDays) * 100), 100);
-  const paceLabel  = PACE_LABELS[profile.pace as keyof typeof PACE_LABELS] ?? profile.pace;
-  const remaining  = totalDays - completed;
+  // Build booksData map for all 66 books
+  const booksData: Record<string, BookData> = {};
+  for (const book of ALL_BOOKS) {
+    booksData[book] = {
+      isCurrent: currentBook === book,
+      isStarted: startedBooks.has(book),
+      unlockedChapters: Array.from(bookUnlocked[book] ?? []).sort((a, b) => a - b),
+      totalChapters: BOOK_CHAPTER_COUNT[book] ?? 0,
+    };
+  }
 
-  // Ring SVG params
-  const r = 54;
-  const circ = 2 * Math.PI * r;
-  const dash = (percent / 100) * circ;
+  const totalDays = PACE_DAYS[profile.pace as keyof typeof PACE_DAYS];
+  const completed = completedDayNums.length;
+  const percent   = Math.min(Math.round((completed / totalDays) * 100), 100);
+  const paceLabel = PACE_LABELS[profile.pace as keyof typeof PACE_LABELS] ?? profile.pace;
+  const remaining = totalDays - completed;
 
   return (
     <div style={{ background: S.bg, minHeight: "100vh", fontFamily: S.sans }}>
@@ -161,88 +111,19 @@ export default async function JornadaPage() {
         borderBottom: "1px solid rgba(226,219,208,0.45)",
         padding: "calc(env(safe-area-inset-top) + 44px) 24px 18px",
       }}>
-        <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6, fontFamily: S.sans }}>Telos</p>
-        <h1 style={{ fontFamily: S.serif, fontSize: 32, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Sua jornada</h1>
+        <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6 }}>Telos</p>
+        <h1 style={{ fontSize: 32, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Sua Bíblia</h1>
       </div>
 
-      <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
-
-        {/* Completion ring + stats */}
-        <div style={{ background: S.card, borderRadius: 24, padding: "28px 24px", border: `1px solid ${S.border}`, display: "flex", alignItems: "center", gap: 28 }}>
-          {/* Ring */}
-          <div style={{ flexShrink: 0 }}>
-            <svg width="130" height="130" viewBox="0 0 130 130">
-              <circle cx="65" cy="65" r={r} fill="none" stroke={S.surface} strokeWidth="10"/>
-              <circle
-                cx="65" cy="65" r={r} fill="none"
-                stroke={S.blue} strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray={`${dash} ${circ}`}
-                transform="rotate(-90 65 65)"
-                style={{ transition: "stroke-dasharray 1s ease" }}
-              />
-              <text x="65" y="60" textAnchor="middle" fontFamily="'Noto Sans', sans-serif" fontSize="20" fontWeight="900" fill={S.blue}>{percent}%</text>
-              <text x="65" y="78" textAnchor="middle" fontFamily="'Noto Sans', sans-serif" fontSize="9" fill={S.gray}>da Bíblia</text>
-            </svg>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div>
-              <p style={{ fontFamily: S.serif, fontSize: 28, fontWeight: 900, color: S.ink, letterSpacing: "-1px", lineHeight: 1 }}>{completed}</p>
-              <p style={{ fontSize: 11, color: S.gray, marginTop: 2, fontFamily: S.sans }}>dias lidos</p>
-            </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <p style={{ fontFamily: S.serif, fontSize: 28, fontWeight: 900, color: S.blue, letterSpacing: "-1px", lineHeight: 1 }}>{streak?.current_streak ?? 0}</p>
-                <FireIcon size={22} color="#E07A30" />
-              </div>
-              <p style={{ fontSize: 11, color: S.gray, marginTop: 2, fontFamily: S.sans }}>sequência atual</p>
-            </div>
-            <div>
-              <p style={{ fontSize: 11, color: S.muted, fontFamily: S.sans }}>Plano de {paceLabel}</p>
-              {remaining > 0 && <p style={{ fontSize: 11, color: S.muted, fontFamily: S.sans }}>{remaining} dias restantes</p>}
-            </div>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ background: S.card, borderRadius: 16, padding: "16px 20px", border: `1px solid ${S.border}` }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, color: S.gray, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.07em", fontFamily: S.sans }}>Progresso geral</span>
-            <span style={{ fontFamily: S.serif, fontSize: 13, fontWeight: 900, color: S.blue }}>{percent}% completo</span>
-          </div>
-          <div style={{ height: 5, background: S.surface, borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${percent}%`, background: S.blue, borderRadius: 99 }} />
-          </div>
-          <p style={{ fontSize: 11, color: S.muted, marginTop: 8, fontFamily: S.sans }}>Plano de {paceLabel} · {completed} de {totalDays} dias</p>
-        </div>
-
-        {/* Bible book grid — Old Testament */}
-        <div style={{ background: S.card, borderRadius: 20, padding: "20px", border: `1px solid ${S.border}` }}>
-          <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Antigo Testamento</p>
-          <p style={{ fontSize: 12, color: S.gray, marginBottom: 16, fontFamily: S.sans }}>39 livros</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
-            {OLD_TESTAMENT.map((book) => <BookTile key={book} book={book} isCurrent={currentBook === book} isStarted={startedBooks.has(book)} firstDay={bookFirstDay[book]} />)}
-          </div>
-        </div>
-
-        {/* Bible book grid — New Testament */}
-        <div style={{ background: S.card, borderRadius: 20, padding: "20px", border: `1px solid ${S.border}` }}>
-          <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Novo Testamento</p>
-          <p style={{ fontSize: 12, color: S.gray, marginBottom: 16, fontFamily: S.sans }}>27 livros</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
-            {NEW_TESTAMENT.map((book) => <BookTile key={book} book={book} isCurrent={currentBook === book} isStarted={startedBooks.has(book)} firstDay={bookFirstDay[book]} />)}
-          </div>
-        </div>
-
-        {/* Coming soon badge */}
-        <div style={{ background: S.surface, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
-          <p style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.gray }}>Mais funcionalidades em breve</p>
-          <p style={{ fontSize: 12, color: S.muted, marginTop: 4, fontFamily: S.sans }}>Mapa de capítulos, marcos e Wrapped anual</p>
-        </div>
-
-      </div>
+      <JornadaClient
+        percent={percent}
+        completed={completed}
+        remaining={remaining}
+        paceLabel={paceLabel}
+        totalDays={totalDays}
+        streak={streak}
+        booksData={booksData}
+      />
     </div>
   );
 }
