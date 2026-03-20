@@ -55,17 +55,26 @@ const CATEGORY_ICONS: Record<string, (color: string) => React.ReactElement> = {
   historias:  (c) => <MicIcon     size={14} color={c} />,
   louvor:     (c) => <MusicIcon   size={14} color={c} />,
 };
-const CATEGORIES = [
+const MENTE_CATEGORIES = [
   { id: "oracoes",    label: "Orações"    },
   { id: "meditacao",  label: "Meditações" },
   { id: "versiculos", label: "Versículos" },
   { id: "historias",  label: "Histórias"  },
-  { id: "louvor",     label: "Louvor"     },
+];
+
+const MUSICAS = [
+  { id: "HW1",  label: "Hillsong Worship em Português",   artist: "Hillsong",      ytId: "7C6RHbAf9WE" },
+  { id: "FN1",  label: "Fernandinho — Ao Vivo",           artist: "Fernandinho",   ytId: "rYqR3ueXfLk" },
+  { id: "AB1",  label: "Aline Barros — Ressuscita-me",    artist: "Aline Barros",  ytId: "g9xHBiQD77Q" },
+  { id: "MK1",  label: "Ministério Ipiranga — Ao Vivo",   artist: "Min. Ipiranga", ytId: "kNi0EFyTVKY" },
+  { id: "DV1",  label: "David Quinlan — Acústico",        artist: "David Quinlan", ytId: "omJWjFxXpQ0" },
 ];
 
 export default function ExplorarPage() {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [activeTab, setActiveTab]         = useState<"mente" | "musicas">("mente");
+  const [selectedMood, setSelectedMood]   = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("oracoes");
+  const [activeMusic, setActiveMusic]     = useState<string | null>(null);
 
   const mood = MOODS.find(m => m.id === selectedMood);
 
@@ -78,153 +87,196 @@ export default function ExplorarPage() {
         background: "rgba(247,243,238,0.82)",
         backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
         borderBottom: "1px solid rgba(226,219,208,0.45)",
-        padding: "calc(env(safe-area-inset-top) + 44px) 24px 18px",
+        padding: "calc(env(safe-area-inset-top) + 44px) 24px 0",
       }}>
         <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 6, fontFamily: S.sans }}>Telos</p>
-        <h1 style={{ fontFamily: S.serif, fontSize: 32, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1 }}>Explorar</h1>
+        <h1 style={{ fontFamily: S.serif, fontSize: 32, fontWeight: 900, color: S.ink, letterSpacing: "-0.8px", lineHeight: 1.1, marginBottom: 16 }}>Explorar</h1>
+
+        {/* Top tabs */}
+        <div style={{ display: "flex", gap: 0 }}>
+          {(["mente", "musicas"] as const).map((tab) => {
+            const label = tab === "mente" ? "Mente" : "Músicas";
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  flex: 1, background: "none", border: "none", cursor: "pointer",
+                  padding: "10px 0 14px",
+                  fontFamily: S.sans, fontSize: 14, fontWeight: isActive ? 700 : 500,
+                  color: isActive ? S.ink : S.muted,
+                  borderBottom: isActive ? `2px solid ${S.blue}` : "2px solid transparent",
+                  transition: "all 0.2s",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div style={{ padding: "20px 0 24px", display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* ── MENTE TAB ── */}
+      {activeTab === "mente" && (
+        <div style={{ padding: "20px 0 100px", display: "flex", flexDirection: "column", gap: 20 }}>
 
-        {/* Mood section */}
-        <div style={{ padding: "0 24px" }}>
-          <div style={{ background: S.card, borderRadius: 20, padding: "20px", border: `1px solid ${S.border}` }}>
-            <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Como você está hoje?</p>
-            <p style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.ink, marginBottom: 20 }}>Selecione seu estado de espírito</p>
-            <div style={{ display: "flex", gap: 8, justifyContent: "space-between" }}>
-              {MOODS.map((m) => {
-                const isActive = selectedMood === m.id;
-                const Icon = MOOD_ICONS[m.id];
+          {/* Mood section */}
+          <div style={{ padding: "0 24px" }}>
+            <div style={{ background: S.card, borderRadius: 20, padding: "20px", border: `1px solid ${S.border}` }}>
+              <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Como você está hoje?</p>
+              <p style={{ fontFamily: S.serif, fontSize: 15, fontWeight: 700, color: S.ink, marginBottom: 20 }}>Selecione seu estado de espírito</p>
+              <div style={{ display: "flex", gap: 8, justifyContent: "space-between" }}>
+                {MOODS.map((m) => {
+                  const isActive = selectedMood === m.id;
+                  const Icon = MOOD_ICONS[m.id];
+                  return (
+                    <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
+                      <button
+                        onClick={() => setSelectedMood(isActive ? null : m.id)}
+                        style={{
+                          width: "100%", aspectRatio: "1", borderRadius: 16,
+                          background: isActive ? "#C49A3C" : "#F0EAE0",
+                          boxShadow: isActive
+                            ? "inset 2px 2px 6px rgba(0,0,0,0.18), inset -1px -1px 3px rgba(255,255,255,0.08)"
+                            : "4px 4px 10px rgba(0,0,0,0.09), -2px -2px 6px rgba(255,255,255,0.85), inset 0 1px 0 rgba(255,255,255,0.7)",
+                          border: "none", display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: "pointer", transition: "all 0.18s ease",
+                        }}
+                      >
+                        <Icon active={isActive} />
+                      </button>
+                      <span style={{ fontSize: 10, fontWeight: isActive ? 700 : 500, color: isActive ? "#C49A3C" : S.gray, fontFamily: S.sans, letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
+                        {m.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {mood && (
+              <div style={{ marginTop: 14, background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, animation: "fadeSlideIn 0.25s ease" }}>
+                <div style={{ borderLeft: `3px solid ${S.blue}`, paddingLeft: 16, marginBottom: 14 }}>
+                  <p style={{ fontFamily: S.serif, fontSize: 17, color: "#4A4540", lineHeight: 1.8, fontStyle: "italic" }}>
+                    &ldquo;{mood.text}&rdquo;
+                  </p>
+                </div>
+                <p style={{ fontSize: 11, color: S.blue, fontWeight: 700, textAlign: "right" as const, marginBottom: 16, fontFamily: S.sans }}>— {mood.verse}</p>
+                <p style={{ fontSize: 14, color: "#4A4540", lineHeight: 1.8, fontFamily: S.sans, marginBottom: 16 }}>{mood.reflection}</p>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.gray, cursor: "pointer", fontFamily: S.sans }}>
+                    Compartilhar
+                  </button>
+                  <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                    <LockIcon size={12} color={S.muted} /> Ouvir (Pro)
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Category pills */}
+          <div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 24px", paddingBottom: 4 }} className="no-scrollbar">
+              {MENTE_CATEGORIES.map((cat) => {
+                const isActive = activeCategory === cat.id;
                 return (
-                  <div key={m.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, flex: 1 }}>
-                    <button
-                      onClick={() => setSelectedMood(isActive ? null : m.id)}
-                      style={{
-                        width: "100%", aspectRatio: "1", borderRadius: 16,
-                        background: isActive ? "#C49A3C" : "#F0EAE0",
-                        boxShadow: isActive
-                          ? "inset 2px 2px 6px rgba(0,0,0,0.18), inset -1px -1px 3px rgba(255,255,255,0.08)"
-                          : "4px 4px 10px rgba(0,0,0,0.09), -2px -2px 6px rgba(255,255,255,0.85), inset 0 1px 0 rgba(255,255,255,0.7)",
-                        border: "none", display: "flex", alignItems: "center", justifyContent: "center",
-                        cursor: "pointer", transition: "all 0.18s ease",
-                      }}
-                    >
-                      <Icon active={isActive} />
-                    </button>
-                    <span style={{ fontSize: 10, fontWeight: isActive ? 700 : 500, color: isActive ? "#C49A3C" : S.gray, fontFamily: S.sans, letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
-                      {m.label}
-                    </span>
-                  </div>
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    style={{
+                      flexShrink: 0, display: "flex", alignItems: "center", gap: 6,
+                      padding: "9px 16px", borderRadius: 99,
+                      background: isActive ? S.blue : S.card,
+                      border: `1.5px solid ${isActive ? S.blue : S.border}`,
+                      cursor: "pointer", transition: "all 0.2s",
+                    }}
+                  >
+                    {CATEGORY_ICONS[cat.id](isActive ? "#FFFFFF" : "#8C8279")}
+                    <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? "#FFFFFF" : S.gray, fontFamily: S.sans }}>{cat.label}</span>
+                  </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Mood content card */}
-          {mood && (
-            <div style={{ marginTop: 14, background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}`, animation: "fadeSlideIn 0.25s ease" }}>
-              <div style={{ borderLeft: `3px solid ${S.blue}`, paddingLeft: 16, marginBottom: 14 }}>
-                <p style={{ fontFamily: S.serif, fontSize: 17, color: "#4A4540", lineHeight: 1.8, fontStyle: "italic" }}>
-                  &ldquo;{mood.text}&rdquo;
-                </p>
-              </div>
-              <p style={{ fontSize: 11, color: S.blue, fontWeight: 700, textAlign: "right" as const, marginBottom: 16, fontFamily: S.sans }}>— {mood.verse}</p>
-              <p style={{ fontSize: 14, color: "#4A4540", lineHeight: 1.8, fontFamily: S.sans, marginBottom: 16 }}>{mood.reflection}</p>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.gray, cursor: "pointer", fontFamily: S.sans }}>
-                  Compartilhar
+          {/* Content cards */}
+          <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ background: S.card, borderRadius: 16, padding: "20px", border: `1px solid ${S.border}` }}>
+              <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Em breve</p>
+              <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: S.ink, marginBottom: 8 }}>
+                {activeCategory === "historias" ? "Histórias Bíblicas Narradas" : activeCategory === "oracoes" ? "Orações Guiadas" : activeCategory === "meditacao" ? "Meditações Bíblicas" : "Versículos por Tema"}
+              </p>
+              <p style={{ fontSize: 13, color: S.gray, lineHeight: 1.6, fontFamily: S.sans }}>
+                {activeCategory === "historias"
+                  ? "Histórias da Bíblia narradas em português brasileiro — perfeitas para antes de dormir. Exclusivo Pro."
+                  : "Conteúdo guiado baseado nas Escrituras, em português. Chegando em breve."}
+              </p>
+              {activeCategory === "historias" && (
+                <button style={{ marginTop: 16, width: "100%", background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}>
+                  Quero saber quando lançar
                 </button>
-                <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                  <LockIcon size={12} color={S.muted} /> Ouvir (Pro)
-                </button>
-              </div>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Category pills */}
-        <div>
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 24px 0", paddingBottom: 4 }} className="no-scrollbar">
-            {CATEGORIES.map((cat) => {
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  style={{
-                    flexShrink: 0,
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "9px 16px",
-                    borderRadius: 99,
-                    background: isActive ? S.blue : S.card,
-                    border: `1.5px solid ${isActive ? S.blue : S.border}`,
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  {CATEGORY_ICONS[cat.id](isActive ? "#FFFFFF" : "#8C8279")}
-                  <span style={{ fontSize: 12, fontWeight: 600, color: isActive ? "#FFFFFF" : S.gray, fontFamily: S.sans }}>{cat.label}</span>
-                </button>
-              );
-            })}
+            <div style={{ background: S.surface, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
+              <p style={{ fontSize: 13, color: S.muted, fontFamily: S.sans }}>Mais conteúdo chegando em breve</p>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Content cards */}
-        <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* ── MÚSICAS TAB ── */}
+      {activeTab === "musicas" && (
+        <div style={{ padding: "20px 24px 100px", display: "flex", flexDirection: "column", gap: 12 }}>
+          <p style={{ fontSize: 13, color: S.gray, fontFamily: S.sans, marginBottom: 4 }}>Louvor em português para acompanhar sua leitura</p>
 
-          {activeCategory === "louvor" ? (
-            /* YouTube playlist embeds */
-            <>
-              {[
-                { label: "Hillsong Worship em Português", query: "Hillsong Worship português" },
-                { label: "Fernandinho — Ao Vivo", query: "Fernandinho ao vivo 2024" },
-                { label: "Aline Barros — Ressuscita-me", query: "Aline Barros ressuscita-me" },
-              ].map((item, i) => (
-                <a
-                  key={i}
-                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(item.query)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ display: "flex", alignItems: "center", gap: 14, background: S.card, borderRadius: 16, padding: "16px", border: `1px solid ${S.border}`, textDecoration: "none" }}
+          {MUSICAS.map((item) => (
+            <div key={item.id} style={{ borderRadius: 16, overflow: "hidden", border: `1px solid ${S.border}` }}>
+              {activeMusic === item.id ? (
+                <div>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${item.ytId}?autoplay=1&rel=0&modestbranding=1`}
+                    style={{ display: "block", width: "100%", height: 200, border: "none" }}
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                  />
+                  <div style={{ background: S.card, padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>{item.label}</p>
+                      <p style={{ fontSize: 11, color: S.muted, marginTop: 2, fontFamily: S.sans }}>{item.artist}</p>
+                    </div>
+                    <button onClick={() => setActiveMusic(null)} style={{ fontSize: 11, color: S.blue, background: "none", border: "none", cursor: "pointer", fontFamily: S.sans, fontWeight: 700 }}>Fechar</button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setActiveMusic(item.id)}
+                  style={{ width: "100%", border: "none", cursor: "pointer", padding: 0, background: "none", display: "block" }}
                 >
-                  <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FF0000", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ fontSize: 18, color: "#FFFFFF" }}>▶</span>
+                  <div style={{ position: "relative", width: "100%", height: 160, background: "#111" }}>
+                    <img
+                      src={`https://i.ytimg.com/vi/${item.ytId}/hqdefault.jpg`}
+                      alt={item.label}
+                      width={320} height={160}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8, display: "block" }}
+                    />
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+                        <MusicIcon size={22} color={S.blue} />
+                      </div>
+                    </div>
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.6))", padding: "20px 14px 10px" }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "#FFF", fontFamily: S.sans }}>{item.label}</p>
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: S.sans, marginTop: 2 }}>{item.artist}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>{item.label}</p>
-                    <p style={{ fontSize: 11, color: S.gray, marginTop: 3, fontFamily: S.sans }}>Abrir no YouTube</p>
-                  </div>
-                </a>
-              ))}
-            </>
-          ) : (
-            /* Coming soon for other categories */
-            <>
-              <div style={{ background: S.card, borderRadius: 16, padding: "20px", border: `1px solid ${S.border}` }}>
-                <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Em breve</p>
-                <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: S.ink, marginBottom: 8 }}>
-                  {activeCategory === "historias" ? "Histórias Bíblicas Narradas" : activeCategory === "oracoes" ? "Orações Guiadas" : activeCategory === "meditacao" ? "Meditações Bíblicas" : "Versículos por Tema"}
-                </p>
-                <p style={{ fontSize: 13, color: S.gray, lineHeight: 1.6, fontFamily: S.sans }}>
-                  {activeCategory === "historias"
-                    ? "Histórias da Bíblia narradas em português brasileiro — perfeitas para antes de dormir. Exclusivo Pro."
-                    : "Conteúdo guiado baseado nas Escrituras, em português. Chegando em breve."}
-                </p>
-                {activeCategory === "historias" && (
-                  <button style={{ marginTop: 16, width: "100%", background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}>
-                    Quero saber quando lançar
-                  </button>
-                )}
-              </div>
-
-              <div style={{ background: S.surface, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
-                <p style={{ fontSize: 13, color: S.muted, fontFamily: S.sans }}>Mais conteúdo chegando em breve</p>
-              </div>
-            </>
-          )}
+                </button>
+              )}
+            </div>
+          ))}
         </div>
-      </div>
+      )}
 
       <style>{`
         @keyframes fadeSlideIn {
