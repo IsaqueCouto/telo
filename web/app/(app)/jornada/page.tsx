@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PACE_DAYS, PACE_LABELS } from "@/lib/reading-plan";
-import { FireIcon } from "@/components/icons";
+import { PACE_DAYS, PACE_LABELS, getDayNumber } from "@/lib/reading-plan";
+import { FireIcon, LockIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -54,21 +55,92 @@ const ABBR: Record<string, string> = {
   "Judas":"Jd",      "Apocalipse":"Ap",
 };
 
+const S2 = {
+  bg:      "#F7F3EE",
+  surface: "#EDE8DF",
+  border:  "#E2DBD0",
+  gray:    "#8C8279",
+  muted:   "#C8BEB2",
+  ink:     "#0D0D0B",
+  blue:    "#3B82C4",
+  sans:    "'Noto Sans', system-ui, sans-serif",
+};
+
+function BookTile({ book, isCurrent, isStarted, firstDay }: { book: string; isCurrent: boolean; isStarted: boolean; firstDay?: number }) {
+  const isLocked = !isCurrent && !isStarted;
+  const bg     = isCurrent ? S2.blue  : isStarted ? "#EBF3FA" : S2.surface;
+  const border = isCurrent ? S2.blue  : isStarted ? "#BFDBF7" : S2.border;
+  const color  = isCurrent ? "#FFFFFF" : isStarted ? S2.blue   : S2.muted;
+  const href   = isCurrent ? "/leitura" : isStarted ? `/leitura?day=${firstDay}` : undefined;
+
+  const inner = (
+    <div
+      title={book}
+      style={{
+        aspectRatio: "1", borderRadius: 8, position: "relative",
+        background: bg, border: `1px solid ${border}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 4, cursor: isLocked ? "default" : "pointer",
+        boxShadow: isCurrent ? "0 2px 8px rgba(59,130,196,0.35)" : "none",
+        transition: "all 0.15s",
+      }}
+    >
+      <span style={{ fontSize: 9, color, fontFamily: S2.sans, fontWeight: 700, textAlign: "center" as const, lineHeight: 1.2 }}>
+        {ABBR[book] ?? book.substring(0, 3)}
+      </span>
+      {isLocked && (
+        <span style={{ position: "absolute", bottom: 2, right: 2, display: "flex", opacity: 0.5 }}>
+          <LockIcon size={8} color={S2.muted} strokeWidth={2} />
+        </span>
+      )}
+    </div>
+  );
+
+  return href ? <Link href={href} style={{ textDecoration: "none" }}>{inner}</Link> : inner;
+}
+
 export default async function JornadaPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: profile }, { count: completedCount }, { data: streak }] = await Promise.all([
-    supabase.from("profiles").select("pace, plan_type").eq("id", user.id).single(),
-    supabase.from("reading_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+  const [{ data: profile }, { data: completedDays }, { data: streak }] = await Promise.all([
+    supabase.from("profiles").select("pace, start_date, plan_type").eq("id", user.id).single(),
+    supabase.from("reading_progress").select("day_number").eq("user_id", user.id),
     supabase.from("streaks").select("current_streak, longest_streak").eq("user_id", user.id).single(),
   ]);
 
   if (!profile) redirect("/login");
 
+  const completedDayNums = (completedDays ?? []).map((d: { day_number: number }) => d.day_number);
+  const todayDayNumber = getDayNumber(profile.start_date);
+
+  // Fetch devotionals for completed days + today to build book state maps
+  const allDays = [...new Set([...completedDayNums, todayDayNumber])];
+  const { data: readDevotionals } = await supabase
+    .from("devotionals")
+    .select("day_number, books_covered")
+    .eq("pace", profile.pace)
+    .in("day_number", allDays);
+
+  // Build: which books have been started, and the first day each book was read
+  const startedBooks = new Set<string>();
+  const bookFirstDay: Record<string, number> = {};
+  const completedDaySet = new Set(completedDayNums);
+  const sortedDevotionals = (readDevotionals ?? []).sort((a, b) => a.day_number - b.day_number);
+  for (const d of sortedDevotionals) {
+    if (!completedDaySet.has(d.day_number)) continue;
+    for (const book of (d.books_covered ?? [])) {
+      startedBooks.add(book);
+      if (!bookFirstDay[book]) bookFirstDay[book] = d.day_number;
+    }
+  }
+  // Current book = first book in today's reading (whether completed today or not)
+  const todayDevotional = (readDevotionals ?? []).find(d => d.day_number === todayDayNumber);
+  const currentBook = todayDevotional?.books_covered?.[0] ?? null;
+
   const totalDays  = PACE_DAYS[profile.pace as keyof typeof PACE_DAYS];
-  const completed  = completedCount ?? 0;
+  const completed  = completedDayNums.length;
   const percent    = Math.min(Math.round((completed / totalDays) * 100), 100);
   const paceLabel  = PACE_LABELS[profile.pace as keyof typeof PACE_LABELS] ?? profile.pace;
   const remaining  = totalDays - completed;
@@ -151,27 +223,7 @@ export default async function JornadaPage() {
           <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Antigo Testamento</p>
           <p style={{ fontSize: 12, color: S.gray, marginBottom: 16, fontFamily: S.sans }}>39 livros</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
-            {OLD_TESTAMENT.map((book) => (
-              <div
-                key={book}
-                title={book}
-                style={{
-                  aspectRatio: "1",
-                  borderRadius: 8,
-                  background: S.surface,
-                  border: `1px solid ${S.border}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 4,
-                  cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 9, color: S.gray, fontFamily: S.sans, fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>
-                  {ABBR[book] ?? book.substring(0, 3)}
-                </span>
-              </div>
-            ))}
+            {OLD_TESTAMENT.map((book) => <BookTile key={book} book={book} isCurrent={currentBook === book} isStarted={startedBooks.has(book)} firstDay={bookFirstDay[book]} />)}
           </div>
         </div>
 
@@ -180,27 +232,7 @@ export default async function JornadaPage() {
           <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: 4, fontFamily: S.sans }}>Novo Testamento</p>
           <p style={{ fontSize: 12, color: S.gray, marginBottom: 16, fontFamily: S.sans }}>27 livros</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
-            {NEW_TESTAMENT.map((book) => (
-              <div
-                key={book}
-                title={book}
-                style={{
-                  aspectRatio: "1",
-                  borderRadius: 8,
-                  background: S.surface,
-                  border: `1px solid ${S.border}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 4,
-                  cursor: "pointer",
-                }}
-              >
-                <span style={{ fontSize: 9, color: S.gray, fontFamily: S.sans, fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>
-                  {ABBR[book] ?? book.substring(0, 3)}
-                </span>
-              </div>
-            ))}
+            {NEW_TESTAMENT.map((book) => <BookTile key={book} book={book} isCurrent={currentBook === book} isStarted={startedBooks.has(book)} firstDay={bookFirstDay[book]} />)}
           </div>
         </div>
 

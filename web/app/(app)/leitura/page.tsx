@@ -6,7 +6,7 @@ import type { Translation } from "@/lib/bible";
 import type { Devotional, Note } from "@/lib/types";
 import { LeituraClient } from "./LeituraClient";
 
-export default async function LeituraPage() {
+export default async function LeituraPage({ searchParams }: { searchParams: Promise<{ day?: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -19,7 +19,11 @@ export default async function LeituraPage() {
 
   if (!profile) redirect("/login");
 
-  const dayNumber = getDayNumber(profile.start_date);
+  const params = await searchParams;
+  const dayOverride = params?.day ? parseInt(params.day, 10) : null;
+  const dayNumber = dayOverride && !isNaN(dayOverride) && dayOverride > 0
+    ? dayOverride
+    : getDayNumber(profile.start_date);
   const translation: Translation = (profile.bible_translation as Translation) ?? "nvi";
   const isPro = profile.plan_type === "pro";
 
