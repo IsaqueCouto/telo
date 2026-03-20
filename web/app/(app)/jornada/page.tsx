@@ -44,43 +44,30 @@ export default async function JornadaPage() {
 
   const completedDayNums = (completedDays ?? []).map((d: { day_number: number }) => d.day_number);
   const todayDayNumber = getDayNumber(profile.start_date);
-  const completedDaySet = new Set(completedDayNums);
 
-  // Fetch devotionals for completed days + today (for chapters_text + books_covered)
-  const allDays = [...new Set([...completedDayNums, todayDayNumber])];
+  // Unlock everything from day 1 up to today's position (regardless of completion)
   const { data: readDevotionals } = await supabase
     .from("devotionals")
     .select("day_number, books_covered, chapters_text")
     .eq("pace", profile.pace)
-    .in("day_number", allDays);
+    .lte("day_number", todayDayNumber);
 
   const sorted = (readDevotionals ?? []).sort((a, b) => a.day_number - b.day_number);
 
-  // Build which books have been started and which chapters are unlocked per book
+  // All days up to today unlock their books and chapters
   const startedBooks = new Set<string>();
   const bookUnlocked: Record<string, Set<number>> = {};
 
   for (const d of sorted) {
-    if (!completedDaySet.has(d.day_number)) continue;
-    // Track started books
     for (const book of (d.books_covered ?? [])) startedBooks.add(book);
-    // Parse chapters unlocked
     for (const { book, chapters } of parseChaptersText(d.chapters_text ?? "")) {
       if (!bookUnlocked[book]) bookUnlocked[book] = new Set();
       chapters.forEach(c => bookUnlocked[book].add(c));
     }
   }
 
-  // Also include today's chapters in current book (even if not yet completed)
-  const todayDevotional = sorted.find(d => d.day_number === todayDayNumber);
-  if (todayDevotional?.chapters_text) {
-    for (const { book, chapters } of parseChaptersText(todayDevotional.chapters_text)) {
-      if (!bookUnlocked[book]) bookUnlocked[book] = new Set();
-      chapters.forEach(c => bookUnlocked[book].add(c));
-    }
-  }
-
   // Current book = first book in today's devotional
+  const todayDevotional = sorted.find(d => d.day_number === todayDayNumber);
   const currentBook = todayDevotional?.books_covered?.[0] ?? null;
 
   // Build booksData map for all 66 books
