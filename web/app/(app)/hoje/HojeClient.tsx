@@ -177,17 +177,19 @@ function HorizonCalendar({ dayNumber, totalDays, completedToday, streak }: {
 
 // ── Streak bar with book progress ────────────────────────────────────────────
 
-function StreakBar({ streak, currentBook, bookStart, bookEnd, dayNumber }: {
+function StreakBar({ streak, currentBook, bookStart, bookEnd, dayNumber, completedToday }: {
   streak: Streak | null;
   currentBook: string | null;
   bookStart: number;
   bookEnd: number;
   dayNumber: number;
+  completedToday: boolean;
 }) {
   const current   = streak?.current_streak ?? 0;
   const bookTotal = Math.max(bookEnd - bookStart + 1, 1);
-  const bookDone  = Math.min(dayNumber - bookStart + 1, bookTotal);
-  const bookLeft  = Math.max(bookEnd - dayNumber, 0);
+  // Only count today if the user has actually completed the reading
+  const bookDone  = Math.min(dayNumber - bookStart + (completedToday ? 1 : 0), bookTotal);
+  const bookLeft  = Math.max(bookEnd - dayNumber + (completedToday ? 0 : 1), 0);
   const pct       = Math.round((bookDone / bookTotal) * 100);
 
   return (
@@ -404,7 +406,7 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
       <div style={{ padding: "20px 24px 24px", display: "flex", flexDirection: "column", gap: 12 }}>
 
         {/* 1. Streak bar with book progress */}
-        <StreakBar streak={streak} currentBook={currentBook} bookStart={bookStart} bookEnd={bookEnd} dayNumber={dayNumber} />
+        <StreakBar streak={streak} currentBook={currentBook} bookStart={bookStart} bookEnd={bookEnd} dayNumber={dayNumber} completedToday={completedToday} />
 
         {/* Calendar */}
         <HorizonCalendar dayNumber={dayNumber} totalDays={totalDays} completedToday={completedToday} streak={streak} />
