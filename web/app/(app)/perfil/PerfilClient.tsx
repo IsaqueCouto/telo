@@ -89,31 +89,40 @@ function NotificationSection({ profile }: { profile: Profile }) {
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
+
+  const notSupported = typeof window !== "undefined" && (!("Notification" in window) || !("serviceWorker" in navigator));
 
   useEffect(() => {
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+    if (notSupported) return;
     setPermission(Notification.permission);
-
     navigator.serviceWorker.register("/sw.js").then((reg) => {
-      reg.pushManager.getSubscription().then((sub) => {
-        setSubscribed(!!sub);
-      });
+      reg.pushManager.getSubscription().then((sub) => setSubscribed(!!sub));
     });
-  }, []);
+  }, [notSupported]);
 
   async function handleEnable() {
+    if (notSupported) return;
     setLoading(true);
+    setStatusMsg("");
     try {
       const perm = await Notification.requestPermission();
       setPermission(perm);
-      if (perm !== "granted") { setLoading(false); return; }
+      if (perm !== "granted") {
+        setStatusMsg("Permissão negada. Habilite nas configurações do navegador.");
+        setLoading(false);
+        return;
+      }
 
-      // register SW and wait for it to be ready
       await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
 
       const existing = await reg.pushManager.getSubscription();
-      if (existing) { setSubscribed(true); setLoading(false); return; }
+      if (existing) {
+        setSubscribed(true);
+        setLoading(false);
+        return;
+      }
 
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
@@ -122,21 +131,26 @@ function NotificationSection({ profile }: { profile: Profile }) {
         ),
       });
 
-      await fetch("/api/push/subscribe", {
+      const res = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(sub.toJSON()),
       });
 
-      setSubscribed(true);
+      if (!res.ok) {
+        setStatusMsg("Erro ao salvar inscrição. Tente novamente.");
+      } else {
+        setSubscribed(true);
+      }
     } catch (e) {
-      console.error(e);
+      setStatusMsg(`Erro: ${(e as Error).message}`);
     }
     setLoading(false);
   }
 
   async function handleDisable() {
     setLoading(true);
+    setStatusMsg("");
     try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
@@ -150,12 +164,10 @@ function NotificationSection({ profile }: { profile: Profile }) {
       }
       setSubscribed(false);
     } catch (e) {
-      console.error(e);
+      setStatusMsg(`Erro: ${(e as Error).message}`);
     }
     setLoading(false);
   }
-
-  const notSupported = typeof window !== "undefined" && (!("Notification" in window) || !("serviceWorker" in navigator));
 
   return (
     <div style={{ background: S.card, borderRadius: 20, border: `1px solid ${S.border}`, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
@@ -189,6 +201,12 @@ function NotificationSection({ profile }: { profile: Profile }) {
           }} />
         </div>
       </div>
+
+      {statusMsg && (
+        <p style={{ fontSize: 11, color: "#C0392B", fontFamily: S.sans, background: "#FEF2F2", borderRadius: 8, padding: "8px 12px", marginBottom: 8 }}>
+          {statusMsg}
+        </p>
+      )}
 
       {permission === "denied" && (
         <p style={{ fontSize: 11, color: "#C0392B", fontFamily: S.sans, background: "#FEF2F2", borderRadius: 8, padding: "8px 12px" }}>
