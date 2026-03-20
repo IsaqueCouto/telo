@@ -176,7 +176,7 @@ function NotificationSection({ profile }: { profile: Profile }) {
           <p style={{ fontSize: 15, fontWeight: 700, color: S.ink, fontFamily: S.sans, marginBottom: 2 }}>Notificações diárias</p>
           <p style={{ fontSize: 12, color: S.gray, fontFamily: S.sans, lineHeight: 1.4 }}>
             {subscribed
-              ? "Você receberá um lembrete às 8h com o versículo do dia."
+              ? "Você receberá um lembrete às 9h com o versículo do dia."
               : "Receba um lembrete diário com o versículo e sua sequência."}
           </p>
         </div>
