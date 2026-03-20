@@ -62,19 +62,44 @@ const MENTE_CATEGORIES = [
   { id: "historias",  label: "Histórias"  },
 ];
 
-const MUSICAS = [
-  { id: "HW1",  label: "Hillsong Worship em Português",   artist: "Hillsong",      ytId: "7C6RHbAf9WE" },
-  { id: "FN1",  label: "Fernandinho — Ao Vivo",           artist: "Fernandinho",   ytId: "rYqR3ueXfLk" },
-  { id: "AB1",  label: "Aline Barros — Ressuscita-me",    artist: "Aline Barros",  ytId: "g9xHBiQD77Q" },
-  { id: "MK1",  label: "Ministério Ipiranga — Ao Vivo",   artist: "Min. Ipiranga", ytId: "kNi0EFyTVKY" },
-  { id: "DV1",  label: "David Quinlan — Acústico",        artist: "David Quinlan", ytId: "omJWjFxXpQ0" },
+const EXOUSIA_VIDEOS = [
+  { id: "6q_kEHjPYzI", title: "6 AM Devocional EP. 28 — ft. Evy Guimarães" },
+  { id: "2VEqRn7PO2w", title: "6 AM Devocional EP. 27 — ft. Leticia Galdino" },
+  { id: "5ClIuzPSiAI", title: "6 AM Devocional EP. 26 — ft. Evy Guimarães" },
+  { id: "FC92DAaNhjQ", title: "6 AM Devocional EP. 25 — ft. Leticia Galdino" },
+  { id: "Nd9VWM5Wu0o", title: "6 AM Devocional EP. 24 — ft. Bia Luna" },
+  { id: "LjX8l9QVeLo", title: "6 AM Devocional EP. 23 — ft. Mikheas Alves" },
+  { id: "76Vr_tm6W9E", title: "6 AM Devocional EP. 22 — ft. Tau & Mikheas" },
+  { id: "PWxHQRGraSw", title: "6 AM Devocional EP. 21 — ft. Tau & Mikheas" },
+  { id: "gUcHCcXhJxw", title: "6 AM Devocional EP. 20 — ft. Tau & Mikheas" },
+  { id: "1Yf5KLNkaL0", title: "6 AM Devocional EP. 19 — ft. Tau & Mikheas" },
+];
+
+const DUNAMIS_VIDEOS = [
+  { id: "SQQ2YJmkMi0", title: "Não Há Outro — Jesus Culture & Dunamis feat. Danielle Vicentini" },
+  { id: "BCOMp6r77Qc", title: "Não Há Outro (Ao Vivo) — Dunamis feat. Danielle Vicentini" },
+  { id: "qqFG8l4CZK8", title: "Não Há Outro — Dunamis feat. Danielle Vicentini" },
+  { id: "rxr3ixO-lVc", title: "Por Uma Nova Geração — The Send Brasil 2026" },
+  { id: "CwC1I0NJ6R4", title: "The Send Brasil 2026" },
+  { id: "h4tjPgdP2c4", title: "Recap Fornalha Tour 2025" },
+  { id: "IP819AkXc90", title: "Fornalha Tour Brasil 2025 — Promo" },
+  { id: "NBGsNhBmUcE", title: "The Send Global Recap" },
+  { id: "iiIfz8_TXhM", title: "The Send 2026 — Promo" },
+  { id: "tp8BjQJ47Z4", title: "Fornalha Tour Brasil 2025 — Teaser" },
+];
+
+const MOOD_PLAYLISTS = [
+  { id: "calmo",   label: "Calmo",   emoji: "🌿" },
+  { id: "animado", label: "Animado", emoji: "🔥" },
+  { id: "oracao",  label: "Oração",  emoji: "🙏" },
+  { id: "pagode",  label: "Pagode",  emoji: "🎵" },
 ];
 
 export default function ExplorarPage() {
-  const [activeTab, setActiveTab]         = useState<"mente" | "musicas">("mente");
-  const [selectedMood, setSelectedMood]   = useState<string | null>(null);
+  const [activeTab, setActiveTab]           = useState<"mente" | "musicas">("mente");
+  const [selectedMood, setSelectedMood]     = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState("oracoes");
-  const [activeMusic, setActiveMusic]     = useState<string | null>(null);
+  const [activeVideoId, setActiveVideoId]   = useState<string | null>(null);
 
   const mood = MOODS.find(m => m.id === selectedMood);
 
@@ -228,53 +253,111 @@ export default function ExplorarPage() {
 
       {/* ── MÚSICAS TAB ── */}
       {activeTab === "musicas" && (
-        <div style={{ padding: "20px 24px 100px", display: "flex", flexDirection: "column", gap: 12 }}>
-          <p style={{ fontSize: 13, color: S.gray, fontFamily: S.sans, marginBottom: 4 }}>Louvor em português para acompanhar sua leitura</p>
+        <div style={{ padding: "20px 0 100px", display: "flex", flexDirection: "column", gap: 28 }}>
 
-          {MUSICAS.map((item) => (
-            <div key={item.id} style={{ borderRadius: 16, overflow: "hidden", border: `1px solid ${S.border}` }}>
-              {activeMusic === item.id ? (
-                <div>
-                  <iframe
-                    src={`https://www.youtube.com/embed/${item.ytId}?autoplay=1&rel=0&modestbranding=1`}
-                    style={{ display: "block", width: "100%", height: 200, border: "none" }}
-                    allow="autoplay; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                  <div style={{ background: S.card, padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>{item.label}</p>
-                      <p style={{ fontSize: 11, color: S.muted, marginTop: 2, fontFamily: S.sans }}>{item.artist}</p>
-                    </div>
-                    <button onClick={() => setActiveMusic(null)} style={{ fontSize: 11, color: S.blue, background: "none", border: "none", cursor: "pointer", fontFamily: S.sans, fontWeight: 700 }}>Fechar</button>
-                  </div>
-                </div>
-              ) : (
+          {/* Active player */}
+          {activeVideoId && (
+            <div style={{ padding: "0 24px" }}>
+              <iframe
+                src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`}
+                style={{ display: "block", width: "100%", height: 210, border: "none", borderRadius: 16 }}
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+              />
+              <button onClick={() => setActiveVideoId(null)} style={{ marginTop: 8, fontSize: 12, color: S.blue, background: "none", border: "none", cursor: "pointer", fontFamily: S.sans, fontWeight: 700, padding: 0 }}>
+                ✕ Fechar player
+              </button>
+            </div>
+          )}
+
+          {/* Playlist: Exousia Music */}
+          <div>
+            <div style={{ padding: "0 24px", marginBottom: 12, display: "flex", alignItems: "baseline", gap: 8 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: S.ink, fontFamily: S.sans }}>Exousia Music</p>
+              <p style={{ fontSize: 11, color: S.muted, fontFamily: S.sans }}>@exousia_music</p>
+            </div>
+            <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 24px 4px", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+              {EXOUSIA_VIDEOS.map((v) => (
                 <button
-                  onClick={() => setActiveMusic(item.id)}
-                  style={{ width: "100%", border: "none", cursor: "pointer", padding: 0, background: "none", display: "block" }}
+                  key={v.id}
+                  onClick={() => setActiveVideoId(v.id)}
+                  style={{ flexShrink: 0, width: 180, border: "none", cursor: "pointer", padding: 0, background: "none", scrollSnapAlign: "start" } as React.CSSProperties}
                 >
-                  <div style={{ position: "relative", width: "100%", height: 160, background: "#111" }}>
-                    <img
-                      src={`https://i.ytimg.com/vi/${item.ytId}/hqdefault.jpg`}
-                      alt={item.label}
-                      width={320} height={160}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8, display: "block" }}
-                    />
-                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
-                        <MusicIcon size={22} color={S.blue} />
+                  <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${S.border}` }}>
+                    <div style={{ position: "relative", width: 180, height: 101, background: "#111" }}>
+                      <img
+                        src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
+                        alt={v.title}
+                        width={180} height={101}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }}
+                      />
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(59,130,196,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                          <MusicIcon size={15} color="#FFF" />
+                        </div>
                       </div>
                     </div>
-                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.6))", padding: "20px 14px 10px" }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "#FFF", fontFamily: S.sans }}>{item.label}</p>
-                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontFamily: S.sans, marginTop: 2 }}>{item.artist}</p>
+                    <div style={{ padding: "8px 10px 10px", background: S.card }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, color: S.ink, lineHeight: 1.4, fontFamily: S.sans, textAlign: "left" as const, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" } as React.CSSProperties}>{v.title}</p>
                     </div>
                   </div>
                 </button>
-              )}
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Playlist: Dunamis Movement */}
+          <div>
+            <div style={{ padding: "0 24px", marginBottom: 12, display: "flex", alignItems: "baseline", gap: 8 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: S.ink, fontFamily: S.sans }}>Dunamis Movement</p>
+              <p style={{ fontSize: 11, color: S.muted, fontFamily: S.sans }}>@DunamisMovement</p>
+            </div>
+            <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 24px 4px", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
+              {DUNAMIS_VIDEOS.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => setActiveVideoId(v.id)}
+                  style={{ flexShrink: 0, width: 180, border: "none", cursor: "pointer", padding: 0, background: "none", scrollSnapAlign: "start" } as React.CSSProperties}
+                >
+                  <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${S.border}` }}>
+                    <div style={{ position: "relative", width: 180, height: 101, background: "#111" }}>
+                      <img
+                        src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
+                        alt={v.title}
+                        width={180} height={101}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }}
+                      />
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(59,130,196,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+                          <MusicIcon size={15} color="#FFF" />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ padding: "8px 10px 10px", background: S.card }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, color: S.ink, lineHeight: 1.4, fontFamily: S.sans, textAlign: "left" as const, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" } as React.CSSProperties}>{v.title}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Mood-based playlists — Em breve */}
+          <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: S.ink, fontFamily: S.sans, marginBottom: 2 }}>Por clima</p>
+            {MOOD_PLAYLISTS.map((p) => (
+              <div key={p.id} style={{ background: S.card, borderRadius: 14, border: `1px solid ${S.border}`, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: S.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                    {p.emoji}
+                  </div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>{p.label}</p>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: S.muted, fontFamily: S.sans, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Em breve</span>
+              </div>
+            ))}
+          </div>
+
         </div>
       )}
 
