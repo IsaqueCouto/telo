@@ -89,14 +89,12 @@ function NotificationSection({ profile }: { profile: Profile }) {
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [swReady, setSwReady] = useState(false);
 
   useEffect(() => {
     if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
     setPermission(Notification.permission);
 
     navigator.serviceWorker.register("/sw.js").then((reg) => {
-      setSwReady(true);
       reg.pushManager.getSubscription().then((sub) => {
         setSubscribed(!!sub);
       });
@@ -104,14 +102,16 @@ function NotificationSection({ profile }: { profile: Profile }) {
   }, []);
 
   async function handleEnable() {
-    if (!swReady) return;
     setLoading(true);
     try {
       const perm = await Notification.requestPermission();
       setPermission(perm);
       if (perm !== "granted") { setLoading(false); return; }
 
+      // register SW and wait for it to be ready
+      await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
+
       const existing = await reg.pushManager.getSubscription();
       if (existing) { setSubscribed(true); setLoading(false); return; }
 
@@ -161,7 +161,7 @@ function NotificationSection({ profile }: { profile: Profile }) {
     <div style={{ background: S.card, borderRadius: 20, border: `1px solid ${S.border}`, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
         <div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: S.ink, fontFamily: S.sans, marginBottom: 2 }}>Lembretes diários</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: S.ink, fontFamily: S.sans, marginBottom: 2 }}>Notificações diárias</p>
           <p style={{ fontSize: 12, color: S.gray, fontFamily: S.sans, lineHeight: 1.4 }}>
             {subscribed
               ? "Você receberá um lembrete às 8h com o versículo do dia."
