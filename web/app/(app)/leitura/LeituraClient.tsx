@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { BookOpenIcon, TempleIcon, PlayCircleIcon, MessageIcon, PencilIcon, LockIcon, SpeakerIcon, CheckCircleIcon, PlayIcon, PauseIcon, SkipBackIcon, SkipForwardIcon, XIcon } from "@/components/icons";
 import type { BibleChapter, Translation } from "@/lib/bible";
 import type { Devotional, Note, Streak } from "@/lib/types";
+import { BIBLEPROJECT_VIDEOS } from "@/lib/bibleproject-videos";
 
 const S = {
   bg:      "#F7F3EE",
@@ -34,6 +35,50 @@ const mdComponents = {
   ),
   strong: ({ children }: any) => <strong style={{ color: S.ink, fontWeight: 700 }}>{children}</strong>,
 };
+
+function BibleProjectVideos({ videos }: { videos: { id: string; title: string }[] }) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {videos.map((v) => (
+        <div key={v.id} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${S.border}` }}>
+          {activeId === v.id ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`}
+              style={{ display: "block", width: "100%", height: 200, border: "none" }}
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <button
+              onClick={() => setActiveId(v.id)}
+              style={{ width: "100%", border: "none", cursor: "pointer", padding: 0, background: "none", display: "block" }}
+            >
+              <div style={{ position: "relative", width: "100%", height: 180, background: "#111", overflow: "hidden" }}>
+                <img
+                  src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
+                  alt={v.title}
+                  width={320}
+                  height={180}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }}
+                />
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(59,130,196,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.35)" }}>
+                    <PlayIcon size={20} color="#FFF" />
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: "10px 14px", background: S.card }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: S.ink, lineHeight: 1.4, fontFamily: S.sans }}>{v.title}</p>
+                <p style={{ fontSize: 11, color: S.muted, marginTop: 2, fontFamily: S.sans }}>BibleProject Português</p>
+              </div>
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Accordion({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -333,23 +378,28 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                   </Accordion>
                 )}
 
+                {(() => {
+                  const books = devotional.books_covered?.length
+                    ? devotional.books_covered
+                    : [...new Set(chapters.map(ch => ch.bookName))];
+                  const videos = books.flatMap(b => BIBLEPROJECT_VIDEOS[b] ?? []);
+                  const seen = new Set<string>();
+                  const unique = videos.filter(v => { if (seen.has(v.id)) return false; seen.add(v.id); return true; });
+                  if (!unique.length) return null;
+                  return (
+                    <div style={{ background: S.card, borderRadius: 16, border: `1px solid ${S.border}`, padding: "16px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                        <PlayCircleIcon size={15} color={S.gray} />
+                        <span style={{ fontFamily: S.sans, fontSize: 13, fontWeight: 700, color: S.ink }}>Vídeos</span>
+                      </div>
+                      <BibleProjectVideos videos={unique} />
+                    </div>
+                  );
+                })()}
+
                 {devotional.historical_context && (
                   <Accordion label="Contexto histórico" icon={<TempleIcon size={15} color={S.gray} />}>
                     <ReactMarkdown components={mdComponents}>{devotional.historical_context}</ReactMarkdown>
-                  </Accordion>
-                )}
-
-                {devotional.youtube_search_terms && devotional.youtube_search_terms.length > 0 && (
-                  <Accordion label="Aprofunde-se" icon={<PlayCircleIcon size={15} color={S.gray} />}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {devotional.youtube_search_terms.map((term, i) => (
-                        <a key={i} href={`https://www.youtube.com/@BibleProject-Portugu%C3%AAs/search?query=${encodeURIComponent(term)}`} target="_blank" rel="noopener noreferrer"
-                          style={{ display: "flex", alignItems: "center", gap: 10, background: S.surface, borderRadius: 10, padding: "12px 14px", textDecoration: "none" }}>
-                          <PlayCircleIcon size={16} color={S.blue} />
-                          <span style={{ fontSize: 13, color: "#4A4540", lineHeight: 1.4 }}>{term}</span>
-                        </a>
-                      ))}
-                    </div>
                   </Accordion>
                 )}
 
