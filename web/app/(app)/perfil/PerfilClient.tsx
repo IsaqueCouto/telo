@@ -127,7 +127,7 @@ function NotificationSection({ profile }: { profile: Profile }) {
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+          "BD0qyVZ9SSmIY-NcbeqFDmLl7tg3li3MNwjemVHRnOpzaViJYyjg3PLBOlbsrKConF6buIjgb2iU7ruUyOmsNBc"
         ),
       });
 
