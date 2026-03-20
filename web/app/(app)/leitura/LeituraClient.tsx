@@ -38,43 +38,54 @@ const mdComponents = {
 
 function BibleProjectVideos({ videos }: { videos: { id: string; title: string }[] }) {
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  if (activeId) {
+    const v = videos.find(v => v.id === activeId)!;
+    return (
+      <div>
+        <iframe
+          src={`https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`}
+          style={{ display: "block", width: "100%", height: 210, border: "none", borderRadius: 12 }}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+        />
+        <div style={{ padding: "8px 2px 2px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>{v.title}</p>
+          <button onClick={() => setActiveId(null)} style={{ fontSize: 11, color: S.blue, background: "none", border: "none", cursor: "pointer", fontFamily: S.sans, fontWeight: 700, flexShrink: 0, paddingLeft: 12 }}>Voltar</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" } as React.CSSProperties}>
       {videos.map((v) => (
-        <div key={v.id} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${S.border}` }}>
-          {activeId === v.id ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`}
-              style={{ display: "block", width: "100%", height: 200, border: "none" }}
-              allow="autoplay; encrypted-media; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <button
-              onClick={() => setActiveId(v.id)}
-              style={{ width: "100%", border: "none", cursor: "pointer", padding: 0, background: "none", display: "block" }}
-            >
-              <div style={{ position: "relative", width: "100%", height: 180, background: "#111", overflow: "hidden" }}>
-                <img
-                  src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
-                  alt={v.title}
-                  width={320}
-                  height={180}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }}
-                />
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={{ width: 52, height: 52, borderRadius: "50%", background: "rgba(59,130,196,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.35)" }}>
-                    <PlayIcon size={20} color="#FFF" />
-                  </div>
+        <button
+          key={v.id}
+          onClick={() => setActiveId(v.id)}
+          style={{ flexShrink: 0, width: 200, border: "none", cursor: "pointer", padding: 0, background: "none", scrollSnapAlign: "start" } as React.CSSProperties}
+        >
+          <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${S.border}` }}>
+            <div style={{ position: "relative", width: 200, height: 112, background: "#111" }}>
+              <img
+                src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`}
+                alt={v.title}
+                width={200}
+                height={112}
+                style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }}
+              />
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(59,130,196,0.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.35)" }}>
+                  <PlayIcon size={16} color="#FFF" />
                 </div>
               </div>
-              <div style={{ padding: "10px 14px", background: S.card }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: S.ink, lineHeight: 1.4, fontFamily: S.sans }}>{v.title}</p>
-                <p style={{ fontSize: 11, color: S.muted, marginTop: 2, fontFamily: S.sans }}>BibleProject Português</p>
-              </div>
-            </button>
-          )}
-        </div>
+            </div>
+            <div style={{ padding: "8px 10px 10px", background: S.card }}>
+              <p style={{ fontSize: 11, fontWeight: 600, color: S.ink, lineHeight: 1.4, fontFamily: S.sans, textAlign: "left" as const, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" } as React.CSSProperties}>{v.title}</p>
+              <p style={{ fontSize: 10, color: S.muted, marginTop: 3, fontFamily: S.sans, textAlign: "left" as const }}>BibleProject Português</p>
+            </div>
+          </div>
+        </button>
       ))}
     </div>
   );
