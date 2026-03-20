@@ -343,7 +343,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                   <Accordion label="Aprofunde-se" icon={<PlayCircleIcon size={15} color={S.gray} />}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {devotional.youtube_search_terms.map((term, i) => (
-                        <a key={i} href={`https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`} target="_blank" rel="noopener noreferrer"
+                        <a key={i} href={`https://www.youtube.com/@BibleProject-Portugu%C3%AAs/search?query=${encodeURIComponent(term)}`} target="_blank" rel="noopener noreferrer"
                           style={{ display: "flex", alignItems: "center", gap: 10, background: S.surface, borderRadius: 10, padding: "12px 14px", textDecoration: "none" }}>
                           <PlayCircleIcon size={16} color={S.blue} />
                           <span style={{ fontSize: 13, color: "#4A4540", lineHeight: 1.4 }}>{term}</span>
