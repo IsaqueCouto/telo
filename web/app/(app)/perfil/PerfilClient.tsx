@@ -176,7 +176,7 @@ function NotificationSection({ profile }: { profile: Profile }) {
           <p style={{ fontSize: 15, fontWeight: 700, color: S.ink, fontFamily: S.sans, marginBottom: 2 }}>Notificações diárias</p>
           <p style={{ fontSize: 12, color: S.gray, fontFamily: S.sans, lineHeight: 1.4 }}>
             {subscribed
-              ? "Você receberá um lembrete às 9h com o versículo do dia."
+              ? `Você receberá um lembrete às ${formatNotifTime(profile.notification_time)} com o versículo do dia.`
               : "Receba um lembrete diário com o versículo e sua sequência."}
           </p>
         </div>
@@ -228,6 +228,12 @@ function NotificationSection({ profile }: { profile: Profile }) {
       </div>
     </div>
   );
+}
+
+function formatNotifTime(t: string | null | undefined): string {
+  if (!t) return "9h";
+  const hour = parseInt(t.split(":")[0], 10);
+  return `${hour}h`;
 }
 
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {

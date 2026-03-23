@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sendPushNotification } from "@/lib/push";
 
-// Called daily by Vercel Cron at 12:00 UTC (09:00 Brasília)
-export async function POST(req: NextRequest) {
+// Called by Vercel Cron — GET request
+export async function GET(req: NextRequest) {
   // Protect the endpoint — only Vercel Cron or our own secret can call it
   const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
