@@ -42,7 +42,7 @@ export default function RegisterPage() {
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) { setError(signInError.message); setLoading(false); return; }
-    router.push("/hoje"); router.refresh();
+    router.push("/onboarding"); router.refresh();
   }
 
   const inputStyle: React.CSSProperties = {

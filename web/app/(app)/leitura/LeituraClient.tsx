@@ -123,13 +123,12 @@ type Props = {
   chapters: BibleChapter[];
   initialTranslation: Translation;
   devotional: Devotional | null;
-  isPro: boolean;
   existingNotes: Note[];
   completedToday: boolean;
   streak: Streak | null;
 };
 
-export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initialChapters, initialTranslation, devotional, isPro, existingNotes, completedToday: initialCompleted, streak }: Props) {
+export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initialChapters, initialTranslation, devotional, existingNotes, completedToday: initialCompleted, streak }: Props) {
   const router = useRouter();
   const [translation, setTranslation]     = useState<Translation>(initialTranslation);
   const [chapters, setChapters]           = useState<BibleChapter[]>(initialChapters);
@@ -211,7 +210,6 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
   }
 
   function handleVerseClick(v: SelectedVerse) {
-    if (!isPro) return;
     const key = verseKey(v);
     const existing = existingNotes.find(n => n.verse_reference === key);
     setVerseNote(existing?.content ?? "");
@@ -341,7 +339,7 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
                         onClick={() => handleVerseClick({ bookName: ch.bookName, chapter: ch.chapter, number: verse.number, text: verse.text })}
                         style={{
                           fontFamily: S.serif, fontSize: 17, lineHeight: 1.9, color: "#3A3530",
-                          cursor: isPro ? "pointer" : "default",
+                          cursor: "pointer",
                           background: isCurrentVerse ? "#FFF3E0" : isHighlighted ? "#EBF3FA" : selectedVerse?.number === verse.number && selectedVerse?.chapter === ch.chapter ? "#EBF3FA" : "transparent",
                           borderRadius: 6, padding: "2px 4px", margin: "0 -4px",
                           transition: "background 0.2s",
@@ -378,10 +376,10 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
               )}
             </div>
 
-            {/* Pro sections */}
-            {devotional && isPro && (
+            {/* Extra content */}
+            {devotional && (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <p style={{ fontSize: 11, color: S.gray, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 600, marginBottom: 4 }}>Conteúdo Pro</p>
+                <p style={{ fontSize: 11, color: S.gray, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 600, marginBottom: 4 }}>Aprofunde-se</p>
 
                 {devotional.reflection && (
                   <Accordion label="O que você leu" icon={<BookOpenIcon size={15} color={S.gray} />}>
@@ -446,25 +444,13 @@ export function LeituraClient({ userId, dayNumber, chaptersText, chapters: initi
               </div>
             )}
 
-            {devotional && !isPro && (
-              <div style={{ position: "relative" }}>
-                <div style={{ background: S.card, borderRadius: 16, padding: "20px", border: `1px solid ${S.border}`, opacity: 0.3, pointerEvents: "none", userSelect: "none" }}>
-                  <p style={{ fontSize: 13, color: S.ink }}>O que você leu · Contexto histórico · Vídeos · Anotações...</p>
-                </div>
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <button onClick={() => router.push("/pro")} style={{ background: S.blue, color: "#FFFFFF", borderRadius: 12, padding: "12px 24px", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: S.sans }}>
-                    Desbloquear Pro
-                  </button>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
 
       {/* Bottom bar */}
       <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: "rgba(247,243,238,0.97)", borderTop: `1px solid ${S.border}`, padding: "10px 20px 28px", textAlign: "center" as const, backdropFilter: "blur(20px)" }}>
-        {isPro && <p style={{ fontSize: 10, color: S.muted, marginBottom: 4 }}>Toque em um versículo para anotar</p>}
+        <p style={{ fontSize: 10, color: S.muted, marginBottom: 4 }}>Toque em um versículo para anotar</p>
         <p style={{ fontSize: 11, color: S.muted }}>Dia {dayNumber} · {chaptersText} · {translation.toUpperCase()}</p>
       </div>
 

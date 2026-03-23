@@ -9,6 +9,7 @@ export default async function PerfilPage() {
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
   if (!profile) redirect("/login");
+  if (!profile.onboarding_completed) redirect("/onboarding");
 
   // Past 16 weeks of reading history for heatmap
   const sixteenWeeksAgo = new Date();

@@ -9,6 +9,7 @@ export type Profile = {
   start_date: string;
   notification_time: string;
   bible_translation: "nvi" | "acf";
+  onboarding_completed: boolean;
 };
 
 export type Devotional = {

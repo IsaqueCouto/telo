@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
@@ -19,8 +20,27 @@ const S = {
 
 export function ConfiguracoesClient({ profile, email }: { profile: Profile; email: string }) {
   const router = useRouter();
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState("");
 
   async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    setDeleteError("");
+    const res = await fetch("/api/auth/delete-account", { method: "DELETE" });
+    if (!res.ok) {
+      const json = await res.json();
+      setDeleteError(json.error ?? "Erro ao excluir conta.");
+      setDeleting(false);
+      return;
+    }
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
@@ -83,7 +103,58 @@ export function ConfiguracoesClient({ profile, email }: { profile: Profile; emai
         >
           Sair da conta
         </button>
+
+        {/* Delete account */}
+        <button
+          onClick={() => setShowDeleteConfirm(true)}
+          style={{ width: "100%", background: "transparent", border: "none", color: S.muted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: S.sans, padding: "8px" }}
+        >
+          Excluir minha conta
+        </button>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          background: "rgba(0,0,0,0.45)",
+          display: "flex", alignItems: "flex-end", justifyContent: "center",
+          backdropFilter: "blur(4px)",
+        }}>
+          <div style={{
+            background: "#FFFFFF",
+            borderRadius: "24px 24px 0 0",
+            padding: "28px 24px calc(28px + env(safe-area-inset-bottom))",
+            width: "100%",
+            maxWidth: 480,
+          }}>
+            <p style={{ fontSize: 20, fontWeight: 900, color: S.ink, fontFamily: S.serif, marginBottom: 10 }}>
+              Excluir conta?
+            </p>
+            <p style={{ fontSize: 14, color: S.gray, lineHeight: 1.6, marginBottom: 24, fontFamily: S.sans }}>
+              Todos os seus dados serão apagados permanentemente — seu progresso, streak e anotações. Esta ação não pode ser desfeita.
+            </p>
+            {deleteError && (
+              <p style={{ color: "#C0392B", fontSize: 13, marginBottom: 12 }}>{deleteError}</p>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                style={{ width: "100%", background: "#C0392B", color: "#FFFFFF", border: "none", borderRadius: 14, padding: "15px", fontSize: 14, fontWeight: 700, cursor: deleting ? "default" : "pointer", fontFamily: S.sans, opacity: deleting ? 0.7 : 1 }}
+              >
+                {deleting ? "Excluindo..." : "Sim, excluir minha conta"}
+              </button>
+              <button
+                onClick={() => { setShowDeleteConfirm(false); setDeleteError(""); }}
+                style={{ width: "100%", background: "transparent", border: `1.5px solid ${S.border}`, color: S.gray, borderRadius: 14, padding: "15px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: S.sans }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

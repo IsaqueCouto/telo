@@ -13,11 +13,12 @@ export default async function LeituraPage({ searchParams }: { searchParams: Prom
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("pace, start_date, bible_translation, plan_type")
+    .select("pace, start_date, bible_translation, plan_type, onboarding_completed")
     .eq("id", user.id)
     .single();
 
   if (!profile) redirect("/login");
+  if (!profile.onboarding_completed) redirect("/onboarding");
 
   const params = await searchParams;
   const dayOverride = params?.day ? parseInt(params.day, 10) : null;
@@ -25,11 +26,7 @@ export default async function LeituraPage({ searchParams }: { searchParams: Prom
     ? dayOverride
     : getDayNumber(profile.start_date);
   const translation: Translation = (profile.bible_translation as Translation) ?? "nvi";
-  const isPro = profile.plan_type === "pro";
-
-  const columns = isPro
-    ? "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection, historical_context, discussion_questions, youtube_search_terms"
-    : "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference";
+  const columns = "day_number, pace, chapters_text, books_covered, key_verse, key_verse_reference, reflection, historical_context, discussion_questions, youtube_search_terms";
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: devotional } = (await supabase.from("devotionals").select(columns).eq("day_number", dayNumber).eq("pace", profile.pace).single()) as any as { data: Devotional | null };
@@ -38,9 +35,7 @@ export default async function LeituraPage({ searchParams }: { searchParams: Prom
 
   const [chapters, { data: notes }, { data: progress }, { data: streak }] = await Promise.all([
     fetchDailyChapters(translation, devotional!.chapters_text, supabase),
-    isPro
-      ? supabase.from("notes").select("id, content, verse_reference, day_number, created_at, updated_at").eq("user_id", user.id).eq("day_number", dayNumber)
-      : Promise.resolve({ data: [] as Note[] }),
+    supabase.from("notes").select("id, content, verse_reference, day_number, created_at, updated_at").eq("user_id", user.id).eq("day_number", dayNumber),
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).eq("day_number", dayNumber).single(),
     supabase.from("streaks").select("current_streak, longest_streak, last_read_date").eq("user_id", user.id).single(),
   ]);
@@ -53,7 +48,6 @@ export default async function LeituraPage({ searchParams }: { searchParams: Prom
       chapters={chapters}
       initialTranslation={translation}
       devotional={devotional}
-      isPro={isPro}
       existingNotes={(notes ?? []) as Note[]}
       completedToday={!!progress?.completed_at}
       streak={streak}

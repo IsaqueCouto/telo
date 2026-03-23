@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { PrayIcon, BookOpenIcon, StarIcon, MicIcon, MusicIcon, LockIcon } from "@/components/icons";
+import { PrayIcon, BookOpenIcon, StarIcon, MicIcon, MusicIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -88,12 +88,76 @@ const DUNAMIS_VIDEOS = [
   { id: "tp8BjQJ47Z4", title: "Fornalha Tour Brasil 2025 — Teaser" },
 ];
 
-const MOOD_PLAYLISTS = [
-  { id: "calmo",   label: "Calmo",   emoji: "🌿" },
-  { id: "animado", label: "Animado", emoji: "🔥" },
-  { id: "oracao",  label: "Oração",  emoji: "🙏" },
-  { id: "pagode",  label: "Pagode",  emoji: "🎵" },
-];
+const CATEGORY_CONTENT = {
+  oracoes: [
+    {
+      tag: "Oração da manhã",
+      title: "Começando o dia com Deus",
+      body: "Senhor, obrigado por mais um dia. Que eu possa caminhar na sua vontade, ver as pessoas com seus olhos e confiar que o Senhor vai me guiar em cada decisão de hoje. Que minha boca fale o que edifica, e meu coração permaneça perto do teu. Amém.",
+    },
+    {
+      tag: "Oração da noite",
+      title: "Descansando sob a tua guarda",
+      body: "Pai, entrego nas tuas mãos tudo o que vivi hoje — os acertos e os erros. Obrigado por tua misericórdia que se renova a cada manhã. Enquanto durmo, que o teu amor me cubra e que eu acorde amanhã com forças renovadas. Amém.",
+    },
+    {
+      tag: "Oração nos momentos difíceis",
+      title: "Quando a força falta",
+      body: "Senhor, hoje estou cansado. Não tenho respostas, só perguntas. Mas sei que o teu poder se aperfeiçoa na fraqueza. Não preciso entender tudo — preciso confiar em ti. Sustenta-me. Seja minha força quando a minha acabar. Amém.",
+    },
+  ],
+  meditacao: [
+    {
+      tag: "Salmo 23",
+      title: "O Senhor é o meu pastor",
+      body: "\"O Senhor é o meu pastor; nada me faltará.\" Este salmo não foi escrito em um jardim tranquilo — Davi conhecia a solidão do deserto e o perigo da guerra. E ainda assim declarou: nada me faltará. Não porque a vida era fácil, mas porque ele conhecia o pastor.",
+    },
+    {
+      tag: "Filipenses 4:6-7",
+      title: "A paz que excede todo entendimento",
+      body: "Paulo escreveu sobre paz de dentro de uma prisão. Quando ele diz \"não andeiais ansiosos\", não é ingenuidade — é uma escolha radical de confiar que Deus é maior do que a nossa situação. A oração não muda apenas as circunstâncias. Ela muda quem ora.",
+    },
+    {
+      tag: "Romanos 8:28",
+      title: "Todas as coisas cooperam para o bem",
+      body: "Esta promessa não diz que tudo é bom — diz que tudo coopera para o bem. Deus é especialista em usar o que parece ruim para construir algo que ainda não conseguimos ver. O fim da história ainda não foi escrito. Confie no autor.",
+    },
+  ],
+  versiculos: [
+    {
+      tag: "Sobre paz",
+      title: "Versículos para quando a ansiedade chega",
+      body: "\"Não andeiais ansiosos por coisa alguma, mas em tudo fazei conhecidos os vossos pedidos a Deus.\" — Filipenses 4:6\n\n\"A paz eu vos deixo, a minha paz vos dou; não a dou como o mundo a dá.\" — João 14:27\n\n\"Lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.\" — 1 Pedro 5:7",
+    },
+    {
+      tag: "Sobre força",
+      title: "Versículos para os dias difíceis",
+      body: "\"Tudo posso naquele que me fortalece.\" — Filipenses 4:13\n\n\"Ele fortalece o cansado e aumenta as forças do que não tem nenhum vigor.\" — Isaías 40:29\n\n\"O Senhor é a minha força e o meu escudo; nele o meu coração confia.\" — Salmo 28:7",
+    },
+    {
+      tag: "Sobre esperança",
+      title: "Versículos para renovar a esperança",
+      body: "\"Porque eu bem sei os planos que tenho para vós, planos de paz e não de mal.\" — Jeremias 29:11\n\n\"Os que esperam no Senhor renovarão as forças; subirão com asas como águias.\" — Isaías 40:31\n\n\"E a esperança não decepciona, porque o amor de Deus está derramado em nossos corações.\" — Romanos 5:5",
+    },
+  ],
+  historias: [
+    {
+      tag: "Antigo Testamento",
+      title: "José — Da cova ao palácio",
+      body: "José foi vendido pelos próprios irmãos, preso injustamente e esquecido — mas em cada etapa, a Bíblia repete: 'O Senhor era com José.' Sua história nos lembra que o sofrimento não é o fim. Deus estava escrevendo um capítulo que José ainda não podia ler. (Gênesis 37–50)",
+    },
+    {
+      tag: "Antigo Testamento",
+      title: "Davi — O menino que confiou",
+      body: "Davi não enfrentou Golias porque era forte — enfrentou porque tinha memória. Ele se lembrou do leão e do urso que Deus o ajudou a vencer. A fé de Davi era alimentada pela história. Quando você está diante do seu gigante, qual história de Deus você pode lembrar? (1 Samuel 17)",
+    },
+    {
+      tag: "Novo Testamento",
+      title: "O filho pródigo — A corrida do pai",
+      body: "A parte mais comovente desta parábola não é o retorno do filho — é a corrida do pai. Ele viu o filho de longe, correu, e abraçou antes de ouvir qualquer pedido de desculpas. Esse é Deus. Não esperando com os braços cruzados, mas correndo ao seu encontro. (Lucas 15:11-32)",
+    },
+  ],
+};
 
 export default function ExplorarPage() {
   const [activeTab, setActiveTab]           = useState<"mente" | "musicas">("mente");
@@ -206,14 +270,16 @@ export default function ExplorarPage() {
                 </div>
                 <p style={{ fontSize: 11, color: S.blue, fontWeight: 700, textAlign: "right" as const, marginBottom: 16, fontFamily: S.sans }}>— {mood.verse}</p>
                 <p style={{ fontSize: 14, color: "#4A4540", lineHeight: 1.8, fontFamily: S.sans, marginBottom: 16 }}>{mood.reflection}</p>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.gray, cursor: "pointer", fontFamily: S.sans }}>
-                    Compartilhar
-                  </button>
-                  <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                    <LockIcon size={12} color={S.muted} /> Ouvir (Pro)
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    const text = `"${mood!.text}" — ${mood!.verse}\n\n${mood!.reflection}\n\nTelos — leia a Bíblia inteira`;
+                    if (navigator.share) navigator.share({ text });
+                    else navigator.clipboard?.writeText(text);
+                  }}
+                  style={{ width: "100%", background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.gray, cursor: "pointer", fontFamily: S.sans }}
+                >
+                  Compartilhar no WhatsApp
+                </button>
               </div>
             )}
           </div>
@@ -245,25 +311,13 @@ export default function ExplorarPage() {
 
           {/* Content cards */}
           <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ background: S.card, borderRadius: 16, padding: "20px", border: `1px solid ${S.border}` }}>
-              <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>Em breve</p>
-              <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: S.ink, marginBottom: 8 }}>
-                {activeCategory === "historias" ? "Histórias Bíblicas Narradas" : activeCategory === "oracoes" ? "Orações Guiadas" : activeCategory === "meditacao" ? "Meditações Bíblicas" : "Versículos por Tema"}
-              </p>
-              <p style={{ fontSize: 13, color: S.gray, lineHeight: 1.6, fontFamily: S.sans }}>
-                {activeCategory === "historias"
-                  ? "Histórias da Bíblia narradas em português brasileiro — perfeitas para antes de dormir. Exclusivo Pro."
-                  : "Conteúdo guiado baseado nas Escrituras, em português. Chegando em breve."}
-              </p>
-              {activeCategory === "historias" && (
-                <button style={{ marginTop: 16, width: "100%", background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans }}>
-                  Quero saber quando lançar
-                </button>
-              )}
-            </div>
-            <div style={{ background: S.surface, borderRadius: 16, padding: "18px 20px", border: `1px solid ${S.border}`, textAlign: "center" as const }}>
-              <p style={{ fontSize: 13, color: S.muted, fontFamily: S.sans }}>Mais conteúdo chegando em breve</p>
-            </div>
+            {CATEGORY_CONTENT[activeCategory as keyof typeof CATEGORY_CONTENT]?.map((item, i) => (
+              <div key={i} style={{ background: S.card, borderRadius: 16, padding: "20px", border: `1px solid ${S.border}` }}>
+                <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.1em", fontWeight: 700, marginBottom: 8, fontFamily: S.sans }}>{item.tag}</p>
+                <p style={{ fontFamily: S.serif, fontSize: 16, fontWeight: 700, color: S.ink, marginBottom: 10 }}>{item.title}</p>
+                <p style={{ fontSize: 14, color: "#4A4540", lineHeight: 1.8, fontFamily: S.sans }}>{item.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -359,21 +413,6 @@ export default function ExplorarPage() {
             </div>
           </div>
 
-          {/* Mood-based playlists — Em breve */}
-          <div style={{ padding: "0 24px", display: "flex", flexDirection: "column", gap: 10 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: S.ink, fontFamily: S.sans, marginBottom: 2 }}>Por clima</p>
-            {MOOD_PLAYLISTS.map((p) => (
-              <div key={p.id} style={{ background: S.card, borderRadius: 14, border: `1px solid ${S.border}`, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: S.surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                    {p.emoji}
-                  </div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>{p.label}</p>
-                </div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: S.muted, fontFamily: S.sans, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>Em breve</span>
-              </div>
-            ))}
-          </div>
 
         </div>
       )}

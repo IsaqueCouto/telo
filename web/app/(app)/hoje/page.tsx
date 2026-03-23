@@ -16,6 +16,7 @@ export default async function HojePage() {
     .single();
 
   if (!profile) redirect("/login");
+  if (!profile.onboarding_completed) redirect("/onboarding");
 
   const dayNumber = getDayNumber(profile.start_date);
 

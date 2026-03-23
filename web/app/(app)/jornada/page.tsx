@@ -35,12 +35,13 @@ export default async function JornadaPage() {
   if (!user) redirect("/login");
 
   const [{ data: profile }, { data: completedDays }, { data: streak }] = await Promise.all([
-    supabase.from("profiles").select("pace, start_date, plan_type").eq("id", user.id).single(),
+    supabase.from("profiles").select("pace, start_date, plan_type, onboarding_completed").eq("id", user.id).single(),
     supabase.from("reading_progress").select("day_number").eq("user_id", user.id),
     supabase.from("streaks").select("current_streak, longest_streak").eq("user_id", user.id).single(),
   ]);
 
   if (!profile) redirect("/login");
+  if (!profile.onboarding_completed) redirect("/onboarding");
 
   const completedDayNums = (completedDays ?? []).map((d: { day_number: number }) => d.day_number);
   const todayDayNumber = getDayNumber(profile.start_date);

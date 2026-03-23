@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ConfiguracoesClient } from "./ConfiguracoesClient";
+import { OnboardingClient } from "./OnboardingClient";
 
-export default async function ConfiguracoesPage() {
+export default async function OnboardingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -14,7 +14,7 @@ export default async function ConfiguracoesPage() {
     .single();
 
   if (!profile) redirect("/login");
-  if (!profile.onboarding_completed) redirect("/onboarding");
+  if (profile.onboarding_completed) redirect("/hoje");
 
-  return <ConfiguracoesClient profile={profile} email={user.email ?? ""} />;
+  return <OnboardingClient profile={profile} />;
 }

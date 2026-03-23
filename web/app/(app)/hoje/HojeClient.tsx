@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { Profile, Devotional, Streak } from "@/lib/types";
-import { FireIcon, BookOpenIcon, MusicIcon, LockIcon, SpeakerIcon, CheckCircleIcon } from "@/components/icons";
+import { FireIcon, BookOpenIcon, MusicIcon, CheckCircleIcon } from "@/components/icons";
 
 const S = {
   bg:      "#F7F3EE",
@@ -14,6 +14,7 @@ const S = {
   gray:    "#8C8279",
   ink:     "#0D0D0B",
   blue:    "#3B82C4",
+  blueBg:  "rgba(59, 130, 196, 0.10)",
   serif:   "'Noto Sans', system-ui, sans-serif",
   sans:    "'Noto Sans', system-ui, sans-serif",
 };
@@ -298,9 +299,6 @@ function MoodSelector() {
             >
               Compartilhar
             </button>
-            <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "11px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-              <LockIcon size={13} color={S.muted} /> Ouvir (Pro)
-            </button>
           </div>
         </div>
       )}
@@ -310,7 +308,7 @@ function MoodSelector() {
 
 // ── Devocionário ─────────────────────────────────────────────────────────────
 
-function Devocional({ reflection, isPro }: { reflection: string | null | undefined; isPro: boolean }) {
+function Devocional({ reflection }: { reflection: string | null | undefined }) {
   const [expanded, setExpanded] = useState(false);
 
   if (!reflection) return null;
@@ -338,17 +336,6 @@ function Devocional({ reflection, isPro }: { reflection: string | null | undefin
         </button>
       )}
 
-      <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${S.border}`, display: "flex", gap: 8 }}>
-        {isPro ? (
-          <button style={{ flex: 1, background: S.blue, color: "#FFFFFF", border: "none", borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-            <SpeakerIcon size={14} color="#FFFFFF" /> Ouvir devocional
-          </button>
-        ) : (
-          <button style={{ flex: 1, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 12, padding: "12px", fontSize: 13, fontWeight: 600, color: S.muted, cursor: "pointer", fontFamily: S.sans, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-            <LockIcon size={13} color={S.muted} /> Ouvir em português (Pro)
-          </button>
-        )}
-      </div>
     </div>
   );
 }
@@ -370,8 +357,6 @@ type Props = {
 
 export function HojeClient({ profile, dayNumber, totalDays, devotional, completedToday, streak, milestone, currentBook, bookStart, bookEnd }: Props) {
   const firstName = profile.full_name?.split(" ")[0] ?? "Olá";
-  const isPro     = profile.plan_type === "pro";
-
   async function shareVerse() {
     if (!devotional?.key_verse) return;
     const text = `"${devotional.key_verse}" — ${devotional.key_verse_reference ?? ""}\n\nTelos · Leia a Bíblia inteira.`;
@@ -413,9 +398,30 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
 
         {/* Milestone banner */}
         {milestone && (
-          <div style={{ background: S.blue, borderRadius: 16, padding: "18px 20px", textAlign: "center" as const }}>
-            <div style={{ fontSize: 28, marginBottom: 4 }}>{milestone.emoji}</div>
-            <p style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 15, fontFamily: S.serif }}>{milestone.message}</p>
+          <div style={{ background: S.blue, borderRadius: 20, padding: "22px 20px", textAlign: "center" as const }}>
+            <div style={{ fontSize: 36, marginBottom: 8 }}>{milestone.emoji}</div>
+            <p style={{ color: "#FFFFFF", fontWeight: 900, fontSize: 18, fontFamily: S.serif, marginBottom: 4 }}>{milestone.message}</p>
+            <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 13, fontFamily: S.sans, marginBottom: 16 }}>Dia {dayNumber} da sua jornada bíblica</p>
+            <button
+              onClick={async () => {
+                const text = `${milestone.emoji} ${milestone.message}\n\nEstou no dia ${dayNumber} lendo a Bíblia inteira com o Telos. Você também consegue!`;
+                if (navigator.share) { await navigator.share({ text }); }
+                else { window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank"); }
+              }}
+              style={{
+                background: "rgba(255,255,255,0.20)",
+                border: "1.5px solid rgba(255,255,255,0.40)",
+                borderRadius: 12,
+                padding: "11px 24px",
+                color: "#FFFFFF",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: S.sans,
+              }}
+            >
+              Compartilhar conquista
+            </button>
           </div>
         )}
 
@@ -443,7 +449,7 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
         {completedToday && (
           <>
             {/* 3. Devocionário */}
-            <Devocional reflection={devotional?.reflection} isPro={isPro} />
+            <Devocional reflection={devotional?.reflection} />
 
             {/* 4. Mood selector */}
             <MoodSelector />
@@ -478,18 +484,19 @@ export function HojeClient({ profile, dayNumber, totalDays, devotional, complete
         )}
 
         {/* Music placeholder */}
-        <div style={{ background: S.card, borderRadius: 20, padding: "22px", border: `1px solid ${S.border}` }}>
-          <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 14, fontFamily: S.sans }}>Música para hoje</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, background: S.surface, borderRadius: 12, padding: "14px 16px" }}>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: S.border, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <MusicIcon size={18} color={S.gray} />
+        <Link href="/explorar" style={{ textDecoration: "none" }}>
+          <div style={{ background: S.card, borderRadius: 20, padding: "18px 22px", border: `1px solid ${S.border}`, display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: S.blueBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <MusicIcon size={20} color={S.blue} />
             </div>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>Em breve</p>
-              <p style={{ fontSize: 11, color: S.gray, marginTop: 2, fontFamily: S.sans }}>Recomendações musicais a caminho</p>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 10, color: S.blue, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontWeight: 700, marginBottom: 2, fontFamily: S.sans }}>Música para hoje</p>
+              <p style={{ fontSize: 14, fontWeight: 600, color: S.ink, fontFamily: S.sans }}>Exousia Music · Dunamis</p>
+              <p style={{ fontSize: 12, color: S.gray, marginTop: 2, fontFamily: S.sans }}>Playlists de louvor para acompanhar sua leitura</p>
             </div>
+            <span style={{ color: S.muted, fontSize: 18 }}>›</span>
           </div>
-        </div>
+        </Link>
 
         {/* Teaser when not yet read */}
         {!completedToday && devotional?.reflection && (
